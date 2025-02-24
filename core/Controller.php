@@ -2,6 +2,7 @@
 namespace core;
 
 use \src\Config;
+use core\Cache;
 
 class Controller {
 
@@ -22,11 +23,24 @@ class Controller {
     }
 
     private function _render($folder, $viewName, $viewData = []) {
+        $cacheKey = "view_" . md5($folder . $viewName . json_encode($viewData));
+        $cachedHtml = Cache::get($cacheKey);
+
+        if ($cachedHtml) {
+            echo $cachedHtml; 
+            return;
+        }
+
         if(file_exists('../src/views/'.$folder.'/'.$viewName.'.php')) {
             extract($viewData);
             $render = fn($vN, $vD = []) => $this->renderPartial($vN, $vD);
             $base = $this->getBaseUrl();
+
+            ob_start();
             require '../src/views/'.$folder.'/'.$viewName.'.php';
+            $html = ob_get_clean();
+            Cache::set($cacheKey, $html, 1800);
+            echo $html;
         }
     }
 
@@ -38,4 +52,8 @@ class Controller {
         $this->_render('pages', $viewName, $viewData);
     }
 
+    public function clearViewCache($viewName, $viewData = []) {
+        $cacheKey = "view_" . md5('pages' . $viewName . json_encode($viewData));
+        Cache::clear($cacheKey);
+    }
 }

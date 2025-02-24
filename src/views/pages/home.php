@@ -1,3 +1,5 @@
 <?php $render('header'); ?>
 
-Opa, <?=$nome;?>
+    <?=$hi?>
+
+<?php $render('footer.php'); ?>
