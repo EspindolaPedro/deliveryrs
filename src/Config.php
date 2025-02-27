@@ -2,13 +2,13 @@
 namespace src;
 
 class Config {
-    const BASE_DIR = '/loja_php/public';
+    const BASE_DIR = '/deliveryrs/public';
 
     const DB_DRIVER = 'mysql';
-    const DB_HOST = 'localhost';
-    const DB_DATABASE = 'loja';
-    CONST DB_USER = 'root';
-    const DB_PASS = '';
+    const DB_HOST = 'db'; 
+    const DB_DATABASE = 'delivery'; 
+    const DB_USER = 'root'; 
+    const DB_PASS = 'p3dr0'; 
 
     const ERROR_CONTROLLER = 'ErrorController';
     const DEFAULT_ACTION = 'index';

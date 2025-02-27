@@ -3,9 +3,12 @@ use core\Router;
 
 $router = new Router();
 
-$router->get('/', 'HomeController@index');
-$router->get('/sobre/{nome}', 'HomeController@sobreP');
-$router->get('/sobre', 'HomeController@sobre');
+// $router->get('/', 'HomeController@indexs');
+// $router->get('/sobre/{nome}', 'HomeController@sobreP');
+// $router->get('/sobre', 'HomeController@sobre');
 
 
-$router->middleware('LogMiddleware', ['/sobre/{nome}', '/sobre', '/']);
+$router->get('/admin', 'AdminController@index');
+
+
+$router->middleware('LogMiddleware', ['/admin',]);

@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -10,8 +8,3 @@
 
 </head>
 <body>
-
-    <div class="topo"></div>
-    <div class="menu"></div>
-    <div class="container"></div>
-    <div class="rodape"></div>
