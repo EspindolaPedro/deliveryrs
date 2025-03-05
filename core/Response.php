@@ -16,12 +16,6 @@ class Response {
 
     public static function view($viewName, $viewData = []) {
         header('Cache-Control: max-age=60, public');
-<<<<<<< HEAD
-        ob_start("ob_gzhandler"); 
-        (new Controller())->render($viewName, $viewData);
-        ob_end_flush();
-    }
-=======
         ob_start("ob_gzhandler");
     
         // ✅ Garante que $viewData sempre seja um array
@@ -35,7 +29,6 @@ class Response {
         ob_end_flush();
     }
     
->>>>>>> master
 
     public static function redirect($url) {
         header("Location: " . $url);

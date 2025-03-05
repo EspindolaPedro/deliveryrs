@@ -18,7 +18,7 @@ services:
       - "8081:80" # Porta para acessar o phpMyAdmin
     environment:
       PMA_HOST: db
-      MYSQL_ROOT_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: p3dr0
 
 volumes:
   db_data:
