@@ -3,7 +3,6 @@
 namespace src\middlewares;
 
 use core\Middleware;
-use core\Response;
 use src\handlers\UserHandler;
 
 class AuthMiddleware extends Middleware

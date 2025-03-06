@@ -30,6 +30,18 @@ class AdminController extends Controller {
             'categories' => $categories,    
         ]);
     }
+
+    public function product() {
+        $flash = '';
+        if(!empty($_SESSION['flash'])) {
+            $flash = $_SESSION['flash'];
+            $_SESSION['flash'] = '';
+        }
+
+        return Response::view('product', [
+            'flash' => $flash,
+        ]);
+    }
    
     
 

@@ -1,5 +1,6 @@
 <?php
 use core\Router;
+use src\controllers\AdminController;
 
 $router = new Router();
 
@@ -10,18 +11,20 @@ $router = new Router();
 // view
 $router->get('/admin', 'AdminController@index');
 $router->get('/admin/categoria', 'AdminController@category');
+$router->get('/admin/produtos', 'AdminController@product');
 
 
-$router->post('/admin', 'AdmActionsController@LoginAction');
-$router->post('/logout', 'AdmActionsController@LogoutAction');
+//login
+$router->post('/admin', 'LoginController@LoginAction');
+$router->post('/logout', 'LoginController@LogoutAction');
 
 // Categorias
-$router->post('/nova-categoria', 'AdmActionsController@newCategoryAction');
-$router->post('/atualizar-ordem', 'AdmActionsController@updateOrder');
-$router->post('/atualizar-categoria', 'AdmActionsController@updateCategory');
-
-
+$router->post('/nova-categoria', 'CategoryActionsController@newCategoryAction');
+$router->post('/atualizar-ordem', 'CategoryController@updateOrder');
+$router->post('/atualizar-categoria', 'CategoryController@updateCategory');
 
 
 $router->middleware('AuthMiddleware', ['/admin/categoria',]);
 $router->middleware('LogMiddleware', ['/admin',]);
+
+$router->middleware('CorsMiddleware', ['/atualizar-categoria',]);

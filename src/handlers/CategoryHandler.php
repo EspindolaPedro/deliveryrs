@@ -6,6 +6,7 @@ use Throwable;
 
 class CategoryHandler  {
   
+
     public static function newCategory($name, $is_listed) {
 
         $isThere = Categories::select()->where('name', $name)->one();
