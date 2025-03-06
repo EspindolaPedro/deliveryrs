@@ -19,7 +19,7 @@ $router->post('/admin', 'LoginController@LoginAction');
 $router->post('/logout', 'LoginController@LogoutAction');
 
 // Categorias
-$router->post('/nova-categoria', 'CategoryActionsController@newCategoryAction');
+$router->post('/nova-categoria', 'CategoryController@newCategoryAction');
 $router->post('/atualizar-ordem', 'CategoryController@updateOrder');
 $router->post('/atualizar-categoria', 'CategoryController@updateCategory');
 
