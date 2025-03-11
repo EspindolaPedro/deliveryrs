@@ -3,8 +3,10 @@
 namespace src\controllers;
 
 use core\Controller;
+use core\Response;
 use Exception;
 use src\handlers\CategoryHandler;
+use src\models\Categories;
 
 class CategoryController extends Controller
 {   
@@ -14,19 +16,22 @@ class CategoryController extends Controller
 
         $categoryName = filter_input(INPUT_POST, 'nameCategory');
         $is_listed = isset($_POST['is_listed']) ? 1 : 0;
-
+        
         if (empty($categoryName)) {
             $this->redirect('/admin/categoria');
             exit;
+        }      
+
+        $nameExists = CategoryHandler::NameExists($categoryName);
+
+        if ($nameExists) {
+            $_SESSION['flash'] = 'Está categoria já existe!';
+            $this->redirect('/admin/categoria');
+            exit;
         }
+
         try {
             $category = CategoryHandler::newCategory($categoryName, $is_listed);
-
-            if (!$category) {
-                $_SESSION['flash'] = 'Categoria já cadastrada!';
-                $this->redirect('/admin/categoria');
-                exit;
-            }
 
             $_SESSION['flash'] = 'Categoria cadastrada com sucesso!';
             $this->redirect('/admin/categoria');
@@ -38,15 +43,7 @@ class CategoryController extends Controller
         }
     }
 
-    public function newOrderList() {
-        if (isset($_POST['order']) && is_array($_POST['order'])) {
-            $novasOrdens = $_POST['ordem'];
-
-            CategoryHandler::updateCategoriesOrder($novasOrdens);
-        }
-    }
-
-    public function updateOrder($req) {
+    public function updateOrder() {
         $json = json_decode(file_get_contents('php://input'), true);
 
         if (isset($json['order']) && is_array($json['order'])) {
@@ -57,35 +54,50 @@ class CategoryController extends Controller
                 CategoryHandler::saveNewOrder($id, $position);
             }
 
-            echo json_encode(['message' => 'Ordenação salva com sucesso!']);
+            echo Response::json(['message' => 'Ordenação salva com sucesso!'],200);
             exit;
         }
         
-        echo json_encode(['erro' => 'Erro ao atualizar a ordenação']);
+        echo Response::json(["message" =>'Erro ao atualizar a ordenação'], 401);
         exit;
     }
   
     public function updateCategory() {
-
+        /**
+         * Recebe dados via POST (body) em json e transforma em uma array associativa.
+         */
         $data = json_decode(file_get_contents('php://input'), true);
         $id = $data['id'];
         $name = $data['name'];
         $isListed = $data['isListed'];
     
         if (!$id || !$name) {
-            return json_encode(["error" => true, "message" => "ID ou Nome inválido."]);
+            echo Response::json(["message" => "ID ou Nome inválido."], 401);
+            exit;
         }
+
+        $nameExists = CategoryHandler::NameExists($name, $id);
+
+        if ($nameExists) {
+            echo Response::json(["message" => "Está categoria já existe"], 401);
+            exit;
+        }
+        
         try {
             $updatedCategory = CategoryHandler::UpdateCategory($id, $name, $isListed);
+            if ($updatedCategory) {
+                echo Response::json(["message" => "Categoria atualizada."]);
+                exit;
+            }
+            else {
+                echo Response::json(["message" => "Está categoria já existe."], 401);
+                exit;
+            }
         } catch (Exception $e) {
-            return json_encode(["message" => "$e"]);
+            echo Response::json(["message" => "$e"], 401);
+            exit;
         }
-    
-        if ($updatedCategory) {
-            return json_encode(["success" => true, "message" => "Categoria atualizada."]);
-        }
-    
-        return json_encode(["error" => true, "message" => "Erro ao atualizar a categoria"]);
+              
     }
 
-}
+} 

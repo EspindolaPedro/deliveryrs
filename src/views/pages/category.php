@@ -37,20 +37,21 @@ $categoria = isset($_GET['categorias']) ? $_GET['categorias'] : '1';
     <?php else: ?>
 
 
-        <div>
+        <div class="cont">
             <ul id="sortable-list" class="sortable-list">
 
                 <?php foreach ($categories as $category): ?>
-                    <li class="max-w-[600px] rounded-md bg-white text-[#252525] flex justify-between items-center cursor-grab"
+                    <li onclick="" class="max-w-[600px] rounded-md bg-white text-[#252525] flex justify-between items-center cursor-grab"
                         data-id="<?= $category['id'] ?>"><?= htmlspecialchars($category['name']) ?><span class="flex gap-4">
 
-                            <button 
+                            <button  class="w-10"
                             onclick="updateCategory(<?= $category['id'] ?>)" 
+
                             class="cursor-pointer"
                             data-is-listed="<?= $category['is_listed'] ?>"
                             >
                             <img src="<?= $base ?>/assets/images/edit.svg" 
-                            class="w-8" alt="editar"></button>
+                            class="w-10" alt="editar"></button>
 
                          <!--   <button onclick="removeCategory(category['id'])" class="cursor-pointer"><img src="<?= $base ?>/assets/images/trash.svg " class="w-8" alt="editar"></span></button> -->
 

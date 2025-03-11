@@ -11,11 +11,12 @@ $router = new Router();
 $router->get('/admin', 'AdminController@index');
 $router->get('/admin/categoria', 'AdminController@category');
 $router->get('/admin/produtos', 'AdminController@product');
+$router->get('/admin/empresa', 'AdminController@company');
 
 
 //login
 $router->post('/admin', 'LoginController@LoginAction');
-$router->post('/logout', 'LoginController@LogoutAction');
+$router->get('/logout', 'LoginController@LogoutAction');
 
 // Categorias
 $router->post('/nova-categoria', 'CategoryController@newCategoryAction');
@@ -29,6 +30,32 @@ $router->get('/produto/{value}', 'ProductController@getProduct');
 $router->put('/atualizar_produto/{id}', 'ProductController@updateProduct');
 $router->delete('/deletar_produto/{id}', 'ProductController@deleteProduct');
 
-$router->middleware('AuthMiddleware', ['/admin/categoria',]);
+
+// Empresa
+$router->post('/dados-empresa', 'CompanyController@insertCompanyData');
+$router->post('/atualizar-horario', 'CompanyController@updateOpeningHours');
+$router->post('/verificar-horario', 'CompanyController@checkIfOpen');
+
+
+
+$router->middleware('AuthMiddleware', [
+    '/admin/categoria', 
+    '/admin/produtos', 
+    '/admin/empresa',
+    '/logout', 
+    '/nova-categoria', 
+    '/atualizar-ordem', 
+    // '/atualizar-categoria',
+    '/dados-empresa',
+  '/novo_produto',
+  '/produtos',
+  '/produto/{value}',
+  '/atualizar_produto/{id}',
+  '/deletar_produto/{id}',
+]);
+
 $router->middleware('LogMiddleware', ['/admin',]);
-$router->middleware('CorsMiddleware', ['/atualizar-categoria', '/novo-produto',]);
+$router->middleware('CorsMiddleware', [
+    '/dados-empresa', '/atualizar-categoria', '/novo-produto'
+]);
+

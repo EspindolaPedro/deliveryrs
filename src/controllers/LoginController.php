@@ -5,7 +5,6 @@ namespace src\controllers;
 use core\Controller;
 use core\Request;
 use core\Response;
-use Exception;
 use src\handlers\UserHandler;
 
 class LoginController extends Controller
@@ -49,23 +48,27 @@ class LoginController extends Controller
         $password = filter_input(INPUT_POST, 'password');
 
         if (!$email || !$password) {
-            return Response::json(["error" => "Todos os campos precisam ser preenchidos!"], 400);
+            echo Response::json(["error" => "Todos os campos precisam ser preenchidos!"], 400);
+            exit;
         }
 
         // Chama o método createUser do UserHandler
         $userCreated = UserHandler::createUser($email, $password);
 
         if ($userCreated) {
-            return Response::json(["success" => true, "message" => "Usuário criado com sucesso!"], 201);
+            echo Response::json(["success" => true, "message" => "Usuário criado com sucesso!"], 201);
+            exit;
         } else {
-            return Response::json(["error" => "Falha ao criar usuário ou email já existente"], 400);
+            echo Response::json(["error" => "Falha ao criar usuário ou email já existente"], 400);
+            exit;
         }
     }
 
 
     public function LogoutAction()
     {
-
+        unset($_SESSION['token']);
+        unset($_SESSION['user']);
         session_destroy();
         $this->redirect("/admin");
         exit;

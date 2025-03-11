@@ -1,0 +1,120 @@
+
+:root {
+    --white: #ffffff;
+    --dark-700: #1a1a1a;
+    --dark-900: #0d0d0d;
+    --gray-100: #e1e1e1;
+    --green-900: #FFEF00;
+}
+
+.container {
+    max-width: 720px;
+    margin: 2rem auto;
+    padding: 0 2rem;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+}
+
+h1 {
+    color: var(--white);
+}
+
+/* Estilos do Formulário */
+.form {
+    display: flex;
+    flex-direction: column;
+    margin: 1rem 0;
+}
+
+textarea {
+    width: 100%;
+    min-height: 120px;
+    resize: none;
+}
+
+select,
+.input {
+    width: 100%;
+    height: 40px;
+    border-radius: 0.3rem;
+    margin-bottom: 1rem;
+    color: var(--white);
+    background-color: var(--dark-900);
+    border: 1px solid var(--gray-100);
+    padding: 0 0.5rem;
+}
+
+.buttonAdd {
+    border-radius: 0.3rem;
+    height: 40px;
+    border: 0;
+    background-color: var(--green-900);
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--dark-700);
+    cursor: pointer;
+}
+
+.buttonAdd:hover {
+    background-color: #e6d70a;
+}
+
+/* Estilos do Upload de Imagem */
+.labelAvatar {
+    width: 100%;
+    height: 280px;
+    background-color: var(--dark-900);
+    margin-bottom: 1rem;
+    border-radius: 0.3rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden; 
+}
+
+.labelAvatar input {
+    display: none;
+}
+
+.labelAvatar span {
+    z-index: 99;
+    position: absolute;
+    opacity: 0.7;
+    transition: all 0.5s;
+}
+
+.labelAvatar span:hover {
+    opacity: 1;
+    transform: scale(1.2);
+}
+
+.preview-photo {
+    width: 100%; 
+    max-width: 300px;
+    height: auto;
+    overflow: hidden; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#preview {
+    max-width: 100%; 
+    max-height: 100%; 
+    display: block;
+    overflow: hidden; 
+}
+
+@media (max-width: 800px) {
+    .container {
+        margin: 2rem auto;
+        padding: 0 .1rem;
+        display: flex;
+        justify-content: space-between;
+        flex-direction: column;
+    }
+    
+}
