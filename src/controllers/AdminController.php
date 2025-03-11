@@ -4,6 +4,7 @@ namespace src\controllers;
 use \core\Controller;
 use core\Response;
 use src\handlers\CategoryHandler;
+use src\handlers\ProductHandler;
 
 class AdminController extends Controller {
 
@@ -38,8 +39,11 @@ class AdminController extends Controller {
             $_SESSION['flash'] = '';
         }
 
-        return Response::view('product', [
+        $products = ProductHandler::getAllProduct();
+
+        return Response::view('product',[
             'flash' => $flash,
+            'products' => $products,
         ]);
     }
    
