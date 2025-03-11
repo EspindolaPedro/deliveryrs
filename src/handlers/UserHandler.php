@@ -14,9 +14,10 @@ class UserHandler  {
                     'id' => $data['id'],
                     'email' => $data['email'],
                     'address' => $data['address'],
-                    'phone' => $data['phone'],                   
+                    'phone' => $data['phone'],     
+                    'about'  => $data['about'],           
+                    'image'  => $data['image_url'],           
                 ];
-
                 return $_SESSION['user'];
             }
 
@@ -44,7 +45,7 @@ class UserHandler  {
         // Verifica se o email já existe
         $existingUser = Adms::select()->where('email', $email)->one();
         if ($existingUser) {
-            return false; // Email já existe no banco
+            return false; 
         }
 
         // Hash da senha

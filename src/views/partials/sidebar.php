@@ -9,7 +9,7 @@
         <li><a href="<?= $base?>/admin/empresa"><img src="<?= $base ?>/assets/images/company.svg" alt="empresa"> Empresa</a></li>
         <li><a href="<?= $base?>/admin/categoria"><img src="<?= $base ?>/assets/images/category.svg" alt="categoria"> Categoria</a></li>
 
-        <li><a class="out" id="logout-btn"><img src="<?= $base ?>/assets/images/out.svg" alt=""> Sair</a></li>
+        <li><a class="out" href="<?= $base?>/logout" id="logout-btn"><img src="<?= $base ?>/assets/images/out.svg" alt=""> Sair</a></li>
     </ul>
 </nav>
 

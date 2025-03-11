@@ -43,6 +43,19 @@ class AdminController extends Controller {
         ]);
     }
    
+
+    public function company() {
+        $flash = '';
+        if(!empty($_SESSION['flash'])) {
+            $flash = $_SESSION['flash'];
+            $_SESSION['flash'] = '';
+        }
+
+        return Response::view('company', [
+            'flash' => $flash,
+        ]);
+    }
+   
     
 
 }

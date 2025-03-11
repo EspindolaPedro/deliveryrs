@@ -40,7 +40,9 @@ function showToastify(message) {
       updateCategory(categoryId);
       editModal.style.display = "none";
     };
-  }function updateCategory(categoryId) {
+  }
+  
+  async function updateCategory(categoryId) {
     const categoryName = document.getElementById("editCategoryName").value;
     const isListed = document.getElementById("editIsListed").checked ? 1 : 0;
   
@@ -53,23 +55,38 @@ function showToastify(message) {
       name: categoryName,
       isListed: isListed
     };
-    const res = api.post("/atualizar-categoria", data, {
-      headers: {
-        "Content-Type": "application/json",
-      }
-    })
-   if (res) {
-    Toastify({
-      text: "Categoria atualizada!",
-      duration: 3000,
-      gravity: "top",
-      position: "center",
-      backgroundColor: "linear-gradient(to right, #000, #111)"
-    }).showToast();
-    setTimeout(() => {
-      location.reload(); 
-    }, 20);
-   } 
+    try {
+      // Aguarde a resposta da API
+      const res = await api.post("/atualizar-categoria", data, {
+        headers: {
+          "Content-Type": "application/json",
+        }
+      });
+    
+      const message = res.data.message || "Categoria atualizada com sucesso!"; 
+  
+      Toastify({
+        text: message,
+        duration: 3000,
+        gravity: "top",
+        position: "center",
+        backgroundColor: "linear-gradient(to right, #000, #111)",
+      }).showToast();
+  
+      setTimeout(() => {
+        location.reload();
+      }, 20);
+  
+    } catch (error) {
+      console.error("Erro na requisição:", error);
+      Toastify({
+        text: "Categoria já existe!",
+        duration: 3000,
+        gravity: "top",
+        position: "center",
+        backgroundColor: "linear-gradient(to right, #000, #111)",
+      }).showToast();
+    } 
   
   }
   

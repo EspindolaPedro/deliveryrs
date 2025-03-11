@@ -48,8 +48,19 @@ function ToggleSidebar() {
   menuLinks()
   ToggleSidebar();
 
+  
 
+  document.addEventListener("DOMContentLoaded", function () {
+    const phoneMask = document.getElementById("telefone");
 
+    if (phoneMask) {
+      const maskOp = {
+        mask: "(00) 9 0000-0000" // Corrigido o formato da máscara
+      };
+      
+      IMask(phoneMask, maskOp);
+    }
+  });
 
 //   function openModal(categoryId) {
 
