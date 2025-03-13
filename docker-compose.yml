@@ -1,1 +1,25 @@
+version: '3.8'  # Adicionei a versão
 
+services:
+  db:
+    image: mysql:5.7
+    container_name: mysql
+    ports:
+      - "3306:3306" # Porta para o MySQL
+    environment:
+      MYSQL_ROOT_PASSWORD: p3dr0
+      MYSQL_DATABASE: delivery
+    volumes:
+      - deliveryrs_db_data:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: phpmyadmin
+    ports:
+      - "8081:80" # Porta para acessar o phpMyAdmin
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: p3dr0
+
+volumes:
+  deliveryrs_db_data:  # <-- Aqui estava errado, agora está indentado corretamente

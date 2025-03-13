@@ -3,7 +3,6 @@ namespace src\controllers;
 
 use \core\Controller;
 use core\Response;
-use LDAP\Result;
 use src\handlers\ProductHandler;
 use src\models\Products;
 
@@ -15,39 +14,57 @@ class ProductController extends Controller {
         $description = $_POST['description'] ?? '';
         $price = $_POST['price'];
         $price_from = $_POST['price_from'] ?? '';
-        $is_listed = isset($_POST['is_listed']) ? (int)$_POST['is_listed'] : 1;
+        $is_listed = isset($_POST['is_listed']) ? 1 : 0;
         $category_id = $_POST['category_id'];
         $created_at = date('Y-m-d H:i:s');
         $updated_at = date('Y-m-d H:i:s');
 
         if(empty($name) || empty($price) || empty($category_id)){
-            echo Response::json([
-                'message' => 'Campos obrigatórios não preenchidos!'
-            ], 400);
+            $_SESSION['flash'] = "Dados não preenchidos corretamente!";
+            $this->redirect('/admin/produtos');
             exit;
+        }
+
+        $regex = '/^\d{1,3}(\.\d{3})*,\d{2}$/';
+
+        if (!preg_match($regex, $price) &&  !preg_match($regex, $price_from)) {
+            $_SESSION['flash'] = "Dados não preenchidos corretamente!";
+            $this->redirect('/admin/produtos');
+            exit;
+        }
+    
+        if (!empty($price_from)) {
+            $price_from = $this->convertPrice($price_from);
+        }
+
+        if (!empty($price)) {
+            $price = $this->convertPrice($price);
         }
 
         $existeProduto = ProductHandler::existsnewProduct($name);
 
         if ($existeProduto) {
-            echo Response::json([
-                'message' => 'Produto já cadastrado!'
-            ], 208);
+         
+            $_SESSION['flash'] = "Produto já cadastrados";
+            $this->redirect('/admin/produtos');
             exit;
         }
         try{
-
-            $image_url = null;
             
             if (isset($_FILES['image_url']) && $_FILES['image_url']['error'] === UPLOAD_ERR_OK) {
             
                 $uploadDir = __DIR__ . "/../../public/assets/images/products/";
+
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0777, true);
+                }
+                
                 $tmpName = $_FILES['image_url']['tmp_name'];
                 $originalName = basename($_FILES['image_url']['name']);
             
             
                 // Gerar hash MD5 baseado no nome original + timestamp
-                $hashName = md5($originalName . time()) . ".jpg";
+                $hashName = $originalName . uniqid() . ".jpg";
                 $destinationPath = $uploadDir . $hashName;
             
             
@@ -55,33 +72,34 @@ class ProductController extends Controller {
                 if (ProductHandler::compressImage($tmpName, $destinationPath, 70)) {
                     $image_url = "http://localhost/delivery_/assets/images/products/" . $hashName;
                 } else {
-                    echo Response::json([
-                        'message' => 'Erro ao processar a imagem!'
-                    ], 500);
-                    exit;
+                  
+            $_SESSION['flash'] = "Erro ao processar imagem";
+            $this->redirect('/admin/produtos');
+            exit;
                 }
             } else {
                 var_dump("Arquivo não recebido ou erro no upload!", $_FILES['image_url']['error'] ?? 'Sem arquivo');
+                exit;
             }
-
 
             $produto = ProductHandler::addnewProduct($name, $description, $price, $price_from, $image_url, $is_listed, $category_id, $created_at, $updated_at);
             
             if ($produto) {
-                echo Response::json([
-                    'message' => 'Produto cadastrado com sucesso!'
-                ], 201);
-                exit;
+               
+            $_SESSION['flash'] = "Produto cadastrado com sucesso!";
+            $this->redirect('/admin/produtos');
+            exit;
             } else {
-                    echo Response::json([
-                        'message' => 'Não foi possível cadastrar produto!'
-                    ], 400);
+                  
+            $_SESSION['flash'] = "Não foi possível cadastrar o produto!";
+            $this->redirect('/admin/produtos');
+            exit;
                 }
             }
         catch(\Exception $e){
-            echo Response::json([
-                'message' => 'Erro ao cadastrar produto!' . $e->getMessage()
-            ], 500);
+           
+            $_SESSION['flash'] = "Erro ao cadastrar o produto". $e->getMessage();
+            $this->redirect('/admin/produtos');
             exit;
         }
     }
@@ -91,10 +109,10 @@ class ProductController extends Controller {
             $products = ProductHandler::getAllProduct();
 
             if(empty($products)){
-                echo Response::json([
-                    'message' => 'Nenhum produto encontrado!'
-                ], 404);
-                exit;
+              
+            $_SESSION['flash']= "Dados não preenchidos corretamente!";
+            $this->redirect('/admin/produtos');
+            exit;
             }
 
             echo Response::json($products);  
@@ -128,14 +146,45 @@ class ProductController extends Controller {
             ], 500);
         }
     }
-
+    
     public function updateProduct($id) {
         try {
             $data = json_decode(file_get_contents('php://input'), true);
             $name = $data['name'] ?? null;
+            $price = $data['price'] ?? null;
+            $price_from = $data['price_from'] ?? null;
+            $image_url = $data['image_url'] ?? null;
     
-            $result = ProductHandler::updateProduct($id, $name, $data);
+            // Regex para validação de preços
+            $regex = '/^\d{1,3}(\.\d{3})*,\d{2}$/';
     
+            if ((!preg_match($regex, $price) && !empty($price)) || (!preg_match($regex, $price_from) && !empty($price_from))) {
+                echo Response::json(['message' => 'Preços inválidos!'], 400);
+                return;
+            }
+    
+            // Converte os preços para float
+            if (!empty($price_from)) {
+                $price_from = $this->convertPrice($price_from);
+            }
+    
+            if (!empty($price)) {
+                $price = $this->convertPrice($price);
+            }
+    
+            // Atualizar imagem, se fornecida
+            if (isset($_FILES['image_url']) && $_FILES['image_url']['error'] === UPLOAD_ERR_OK) {
+                $image_url = $this->handleImageUpload();
+                if (!$image_url) {
+                    echo Response::json(['message' => 'Erro ao processar imagem!'], 500);
+                    return;
+                }
+            }
+    
+            // Chama o handler para atualizar o produto
+            $result = ProductHandler::updateProduct($id, $name, $price, $price_from, $image_url, $data);
+    
+            // Respostas baseadas no resultado
             switch ($result) {
                 case 'not_found':
                     echo Response::json(['message' => 'Produto não encontrado!'], 404);
@@ -152,15 +201,17 @@ class ProductController extends Controller {
                 case 'no_changes':
                     echo Response::json(['message' => 'Nenhuma alteração foi feita!'], 400);
                     return;
+                case 'image_upload_error':
+                    echo Response::json(['message' => 'Erro ao processar a imagem!'], 500);
+                    return;
                 case 'update_failed':
                     echo Response::json(['message' => 'Erro ao atualizar o produto!'], 500);
                     return;
                 case 'success':
                     echo Response::json(['message' => 'Produto atualizado com sucesso!', 'product' => $result], 200);
                     return;
-                //Caso tenha retornado o produto de "success" mostrar o produto
                 default:
-                    echo Response::json(['message' => 'Produto atualizado com sucesso!', 'product' => $result], 200);
+                    echo Response::json(['message' => 'Erro desconhecido!'], 500);
                     return;
             }
     
@@ -168,7 +219,36 @@ class ProductController extends Controller {
             echo Response::json(['message' => 'Erro ao processar a solicitação: ' . $e->getMessage()], 500);
         }
     }
-
+    
+    // Função auxiliar para conversão de preços
+    private function convertPrice($price) {
+        $formattedPrice = str_replace('.', '', $price);
+        $formattedPrice = str_replace(',', '.', $formattedPrice);
+        return (float)$formattedPrice;
+    }
+    
+    // Função auxiliar para tratamento de upload de imagem
+    private function handleImageUpload() {
+        $uploadDir = __DIR__ . "/../../public/assets/images/products/";
+    
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
+        }
+    
+        $tmpName = $_FILES['image_url']['tmp_name'];
+        $originalName = basename($_FILES['image_url']['name']);
+        $hashName = $originalName . uniqid() . ".jpg";
+        $destinationPath = $uploadDir . $hashName;
+    
+        // Comprime e move a imagem para o diretório final
+        if (ProductHandler::compressImage($tmpName, $destinationPath, 70)) {
+            return "http://localhost/delivery_/assets/images/products/" . $hashName;
+        } else {
+            return false;
+        }
+    }
+    
+    
     public function deleteProduct($id) {
         try {
             

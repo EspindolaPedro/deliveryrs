@@ -8,6 +8,14 @@ use src\handlers\ProductHandler;
 
 class AdminController extends Controller {
 
+    private $categories;
+
+    public function __construct()
+    {
+        $this->categories = CategoryHandler::getAllCategories();
+        
+    }
+
     public function index() {                   
         $flash = '';
         if(!empty($_SESSION['flash'])) {
@@ -24,11 +32,9 @@ class AdminController extends Controller {
             $_SESSION['flash'] = '';
         }
 
-        $categories = CategoryHandler::getAllCategories();
-
         return Response::view('category', [
             'flash' => $flash,
-            'categories' => $categories,    
+            'categories' => $this->categories,    
         ]);
     }
 
@@ -44,6 +50,7 @@ class AdminController extends Controller {
         return Response::view('product',[
             'flash' => $flash,
             'products' => $products,
+            'categories' => $this->categories,    
         ]);
     }
    

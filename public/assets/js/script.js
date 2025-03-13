@@ -48,6 +48,17 @@ function ToggleSidebar() {
   menuLinks()
   ToggleSidebar();
 
+
+
+
+  function openEditModalProducts() {  
+    document.querySelector('.modalProduct').classList.add('show');
+}
+
+function closeModal() {
+    document.querySelector('.modalProduct').classList.remove('show');
+}
+
   
 
   document.addEventListener("DOMContentLoaded", function () {
@@ -60,46 +71,23 @@ function ToggleSidebar() {
       
       IMask(phoneMask, maskOp);
     }
+
+    const precoInput = document.getElementById('price');
+    const precoFromInput = document.getElementById('price_from');
+       IMask(precoInput, {
+            mask: Number, 
+            scale: 2,
+            thousandsSeparator: '.', 
+            padFractionalZeros: true, 
+            normalizeZeros: true, 
+            radix: ',',
+        });
+        IMask(precoFromInput, {
+          mask: Number, 
+          scale: 2,
+          thousandsSeparator: '.', 
+          padFractionalZeros: true, 
+          normalizeZeros: true, 
+          radix: ',',
+      });
   });
-
-//   function openModal(categoryId) {
-
-//     const modal = document.getElementById('modal');
-//     modal.style.display = 'flex';
-
-//     const confirmButton = document.getElementById('confirmDelete');
-//     confirmButton.onclick = function() {
-//         removeCategory(categoryId);
-//         modal.style.display = 'none';
-//     };
-
-//     const cancelButton = document.getElementById('cancelDelete');
-//     cancelButton.onclick = function() {
-//         modal.style.display = 'none';
-//     };
-
-//     const closeModal = document.getElementById('closeModal');
-//     closeModal.onclick = function() {
-//         modal.style.display = 'none';
-//     };
-
-//     window.onclick = function(event) {
-//         if (event.target == modal) {
-//             modal.style.display = 'none';
-//         }
-//     };
-// }
-
-// function removeCategory(categoryId) {
-
-// }
-
-// function setupDeleteButtons() {
-//     const deleteButtons = document.querySelectorAll('button[onclick^="removeCategory"]');
-//     deleteButtons.forEach(button => {
-//         const categoryId = button.getAttribute('onclick').match(/\d+/)[0];
-//         button.setAttribute('onclick', `openModal(${categoryId})`);
-//     });
-// }
-
-// document.addEventListener('DOMContentLoaded', setupDeleteButtons);

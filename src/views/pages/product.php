@@ -1,7 +1,7 @@
 <?php
 $produtos = isset($_GET['produtos']) ? $_GET['produtos'] : '1';
 ?>
-<?php $render('headerAdmin', []) ?>
+<?php $render('headerAdmin', ['products' => $products, 'categories' => $categories, 'flash' => $flash]) ?>
 
 <?php $render('sidebar') ?>
 
@@ -17,29 +17,31 @@ $produtos = isset($_GET['produtos']) ? $_GET['produtos'] : '1';
         <main class="container">
             <h1 class="text-3xl font-medium">Novo produto</h1>
 
-        <form id="productForm" class="form">
-            <!-- Campo de Upload de Imagem -->
+        <form id="productForm" class="form" method="POST" enctype="multipart/form-data" action="<?=$base?>/novo_produto" >
+            
             <label class="labelAvatar" for="avatar">
                 <span>
                     <img src="<?=$base?>/assets/images/upload.svg" alt="Ícone de Upload" width="30" height="30">
                 </span>
-                <input type="file" id="avatar" class="product" accept="image/png, image/jpeg" onchange="handleFile(event)">
+                <input type="file" name="image_url" id="avatar" class="product" accept="image/png, image/jpeg" onchange="handleFile(event)">
                 <div class="preview-photo"></div>
                 
             </label>
 
-            <!-- Seleção de Categoria -->
-            <select name="category" id="category">
-                <option value="">Selecione uma categoria</option>
-                <!-- As opções serão preenchidas dinamicamente via JavaScript -->
+            <select name="category_id" id="category">
+                <option value="">Escolha uma categoria</option>
+                <?php foreach ($categories as $category):?>
+                    <option value="<?= htmlspecialchars($category['id'])?>"><?= htmlspecialchars($category['name'])?></option>
+                    <?php endforeach?>
             </select>
-
+            
             <!-- Campo de Nome do Produto -->
             <input
                 type="text"
                 id="name"
                 placeholder="Digite o nome do produto"
                 class="input"
+                name="name"
             />
 
             <!-- Campo de Preço do Produto -->
@@ -49,12 +51,14 @@ $produtos = isset($_GET['produtos']) ? $_GET['produtos'] : '1';
                     id="price"
                     placeholder="Valor R$"
                     class="input"
+                    name="price"
                 />
                 <input
                     type="text"
                     id="price_from"
                     placeholder="Valor R$ (valor para promoção)"
                     class="input"
+                    name="price_from"
                 />
 
             </div>
@@ -64,6 +68,7 @@ $produtos = isset($_GET['produtos']) ? $_GET['produtos'] : '1';
                 id="description"
                 placeholder="Descreva seu produto"
                 class="input"
+                name="description"
             ></textarea>
 
             
@@ -111,53 +116,19 @@ $produtos = isset($_GET['produtos']) ? $_GET['produtos'] : '1';
 
 </main>
 
-
-
 <?php if (!empty($flash)): ?>
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <script>
-        showToastify(<?= json_encode($flash); ?>);
+        Toastify({
+            text: <?= json_encode($flash); ?>,
+            duration: 3000,
+            gravity: "top",
+            position: "center",
+            backgroundColor: "linear-gradient(to right, #000, #111)"
+        }).showToast();
     </script>
 <?php endif; ?>
 
 
-
-
-
-
-
-
-<div id="editModal" class="modal">
-    <div class="modal-content">
-        <span class="close" id="closeEditModal">&times;</span>
-        <h2 class="text-bold text-2xl">Editar Categoria</h2>
-
-        <form id="editCategoryForm">
-            <input class="text-bold text-xl border-b-2 border-gray-400 " style="padding: 4px;" type="text" id="editCategoryName" name="name" placeholder="Nome da Categoria" required>
-            <br>
-            <label for="editIsListed mb-2" class="text-xl">Aparecer no menu ?</label> <br>
-            <input type="checkbox" id="editIsListed" name="is_listed" value="1">
-            <br>
-            <input type="hidden" id="editCategoryId" name="id"> <br>
-            <div class="modal-buttons">
-                <button type="submit" class="confirm-button">Salvar</button>
-                <button type="button" id="cancelEdit" class="cancel-button">Cancelar</button>
-            </div>
-        </form>
-
-    </div>
-</div>
-
-
-<div id="modal" class="modal">
-    <div class="modal-content">
-        <span class="close" id="closeModal">&times;</span>
-        <h2>Tem certeza que deseja excluir?</h2>
-        <p>Esta ação não pode ser desfeita.</p>
-        <div class="modal-buttons">
-            <button id="confirmDelete" class="confirm-button">Sim, excluir</button>
-            <button id="cancelDelete" class="cancel-button">Cancelar</button>
-        </div>
-    </div>
-</div>
 
 <?php $render('footerAdmin') ?>

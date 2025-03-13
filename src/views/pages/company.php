@@ -46,7 +46,7 @@ $empresa = isset($_GET['empresa']) ? $_GET['empresa'] : '1';
                     id="telefone"
                     name="phone"
                     placeholder="(67) 9 9999 9999"
-                    value="<?= $_SESSION['user']['phone']?>"
+                    value="<?= $_SESSION['user']['phone'] ?? ''?>"
                     class="input"
 
                 />
@@ -56,7 +56,7 @@ $empresa = isset($_GET['empresa']) ? $_GET['empresa'] : '1';
                 type="text"
                 placeholder="contato@gmail.com"
                 class="input"
-                value="<?= $_SESSION['user']['email']?>"
+                value="<?= $_SESSION['user']['email'] ?? ''?>"
                 name="email"
             />
 
@@ -64,7 +64,7 @@ $empresa = isset($_GET['empresa']) ? $_GET['empresa'] : '1';
                 type="text"
                 placeholder="Rua, número, bairro e cidade"
                 class="input"
-                value="<?= $_SESSION['user']['address']?>"
+                value="<?= $_SESSION['user']['address'] ?? ''?>"
                 name="address"
             />
 
@@ -75,9 +75,7 @@ $empresa = isset($_GET['empresa']) ? $_GET['empresa'] : '1';
                 placeholder="Sobre a empresa"
                 class="input"
                 name="about"
-            >
-            <?= htmlspecialchars($_SESSION['user']['about'])?>
-        </textarea>
+            ><?= isset($_SESSION['user']['about']) ? $_SESSION['user']['about'] : '' ?></textarea>
             
             <!-- Botão de Cadastro -->
             <button type="submit" class="buttonAdd">
