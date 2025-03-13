@@ -6,7 +6,6 @@ use src\models\Products;
 
 class ProductHandler  {
 
-    //Adiciona o produto no DB
     
     public static function addnewProduct($name, $description, $price, $price_from, $image_url, $is_listed, $category_id, $created_at, $updated_at) {
        try{
@@ -69,11 +68,11 @@ class ProductHandler  {
         
         $query = Products::select();
         if (ctype_digit($value)){
-            $query->where('id', (int)$value);
+            $query->where('id', 'LIKE', '%'.(int)$value .'%');
         }else{
-            $query->where('name', $value);
+            $query->where('name', 'LIKE','%'. $value .'%');
         }
-        $product = $query->one();
+        $product = $query->execute();
         
         if($product){
             $productData = [
@@ -140,22 +139,18 @@ class ProductHandler  {
             return 'no_changes'; // Nenhuma alteração foi feita
         }
     
-        // Se houver nova imagem
         if ($image_url) {
             $updateData['image_url'] = $image_url;
         }
     
-        // Adiciona o updated_at
         $updateData['updated_at'] = date('Y-m-d H:i:s');
     
-        // Realiza a atualização no banco de dados
         $updated = Products::update($updateData)->where('id', $id)->execute();
     
         if ($updated === false || $updated === 0) {
-            return 'update_failed'; // Falha na atualização
+            return 'update_failed'; 
         }
     
-        // Retorna o produto atualizado
         $updatedProduct = Products::select()->where('id', $id)->one();
         return $updatedProduct;
     }
@@ -163,46 +158,24 @@ class ProductHandler  {
     
 
     public static function deleteProduct($id) {
-        // 1. Verificar se o produto existe
+        
         $product = Products::select()->where('id', $id)->one();
         
         if (!$product) {
-            return 'not_found';  // Produto não existe
+            return 'not_found';  
         }
     
-        // 2. Tentar excluir o produto
         $deleted = Products::delete()->where('id', $id)->execute();
         
         if ($deleted === false) {
-            return 'delete_failed'; // Falha na execução
+            return 'delete_failed'; 
         }
     
-        // 3. Confirmar se o produto foi excluído
         $productAfterDelete = Products::select()->where('id', $id)->one();
     
-        // 4. Se o produto não existe mais após a exclusão, a exclusão foi bem-sucedida
         if (!$productAfterDelete) {
             return 'success';
         }
     }
 
-    public static function compressImage($source, $destination, $quality) {
-        $info = getimagesize($source);
-    
-        if ($info['mime'] == 'image/jpeg') {
-            $image = imagecreatefromjpeg($source);
-        } elseif ($info['mime'] == 'image/png') {
-            $image = imagecreatefrompng($source);
-            imagepalettetotruecolor($image);
-        } elseif ($info['mime'] == 'image/webp') {
-            $image = imagecreatefromwebp($source);
-        } else {
-            return false;
-        }
-    
-        imagejpeg($image, $destination, $quality);
-        imagedestroy($image);
-    
-        return true;
-    }
 }

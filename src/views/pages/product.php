@@ -31,7 +31,7 @@ $produtos = isset($_GET['produtos']) ? $_GET['produtos'] : '1';
             <select name="category_id" id="category">
                 <option value="">Escolha uma categoria</option>
                 <?php foreach ($categories as $category):?>
-                    <option value="<?= htmlspecialchars($category['id'])?>"><?= htmlspecialchars($category['name'])?></option>
+                    <option value="<?= htmlspecialchars($category['id'])?>"><?= htmlspecialchars(utf8_decode($category['name']))?></option>
                     <?php endforeach?>
             </select>
             
@@ -87,30 +87,28 @@ $produtos = isset($_GET['produtos']) ? $_GET['produtos'] : '1';
     <?php else: ?>
 
         <div>
-            <ul id="sortable-list" class="sortable-list">
+            <ul id="products-list" class="" >
 
 
                 <li class="max-w-[600px] rounded-md bg-white text-[#252525] flex justify-between items-center cursor-grab"
                     data-id="">
-                    Cervejinha
+                    <img src="http://localhost/deliveryrs/public/assets/images/products/67d2f41f4b826.png" style="max-width:50px; max-height:50px;" alt="">
+
+                    <div>
+                        <p class="text-xl text-semibold">Cerveja</p>
+                    </div>
                     <span class="flex gap-4">
 
-                        <button
-                            onclick=""
-                            class="cursor-pointer"
-                            data-is-listed="">
+                        <button class="cursor-pointer openUpdateModal"><img src="<?= $base ?>/assets/images/edit.svg" class="w-8" alt="editar"></button>
 
-                            <img src="<?= $base ?>/assets/images/edit.svg"
-                                class="w-8" alt="editar"></button>
-
-                        <button onclick="  " class="cursor-pointer"><img src="<?= $base ?>/assets/images/trash.svg " class="w-8" alt="editar"></span></button>
+                        <button class="cursor-pointer"><img src="<?= $base ?>/assets/images/trash.svg " class="w-8" alt="editar"></span></button>
 
                 </li>
 
             </ul>
         </div>
 
-
+        <?php $render('modalUpdateProducts', ['categories' => $categories])?>
 
     <?php endif; ?>
 
@@ -128,6 +126,7 @@ $produtos = isset($_GET['produtos']) ? $_GET['produtos'] : '1';
         }).showToast();
     </script>
 <?php endif; ?>
+
 
 
 

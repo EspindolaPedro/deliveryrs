@@ -1,3 +1,10 @@
+const api = axios.create({
+  baseURL: "http://localhost/deliveryrs/public/",
+  headers: {
+    //'Authorization': 'Bearer seu-token-aqui',
+    "Content-Type": "application/json",
+  },
+});
 
 
 function showToastify(message) {
@@ -10,7 +17,10 @@ function showToastify(message) {
       backgroundColor: "linear-gradient(to right, #000, #111)",
     }).showToast();
   }
-  
+
+
+
+
 
   function openEditModal(categoryId, categoryName, isListed) {
     const editModal = document.getElementById("editModal");
@@ -109,3 +119,38 @@ function showToastify(message) {
     });
   }
   document.addEventListener("DOMContentLoaded", setupEditButtons);
+
+
+
+const modal = document.querySelector('.modalUpdate');
+const open = document.querySelector('.openUpdateModal');
+const closeUpdatedModal = document.querySelector('.closeUpdateModal');
+
+open.onclick = function() {
+  modal.style.display = 'block';
+}
+closeUpdatedModal.onclick = function() {
+  modal.style.display = 'none'
+}
+window.onclick = function(e) {
+  if (e.target === modal) {    
+  modal.style.display = 'none'
+  }
+}
+
+
+  
+
+  
+async function GetProducts() {
+  const res = await api.get('/produtos')
+ 
+  const produtos = res.data;
+
+  
+
+
+}
+
+
+document.addEventListener('DOMContentLoaded', GetProducts())

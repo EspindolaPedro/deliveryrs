@@ -5,11 +5,11 @@ use \core\Controller;
 use core\Response;
 use src\handlers\ProductHandler;
 use src\models\Products;
+use \src\Config;
 
 class ProductController extends Controller {
     
-    public function newProduct(){
-
+    public function newProduct() {
         $name = $_POST['name'];
         $description = $_POST['description'] ?? '';
         $price = $_POST['price'];
@@ -18,91 +18,68 @@ class ProductController extends Controller {
         $category_id = $_POST['category_id'];
         $created_at = date('Y-m-d H:i:s');
         $updated_at = date('Y-m-d H:i:s');
-
-        if(empty($name) || empty($price) || empty($category_id)){
-            $_SESSION['flash'] = "Dados não preenchidos corretamente!";
-            $this->redirect('/admin/produtos');
-            exit;
-        }
-
-        $regex = '/^\d{1,3}(\.\d{3})*,\d{2}$/';
-
-        if (!preg_match($regex, $price) &&  !preg_match($regex, $price_from)) {
+    
+        if (empty($name) || empty($price) || empty($category_id)) {
             $_SESSION['flash'] = "Dados não preenchidos corretamente!";
             $this->redirect('/admin/produtos');
             exit;
         }
     
+        // Validação de preço com regex
+        $regex = '/^\d{1,3}(\.\d{3})*,\d{2}$/';
+
+        if ((!preg_match($regex, $price) && !empty($price)) || (!preg_match($regex, $price_from) && !empty($price_from))) {
+            $_SESSION['flash'] = "Dados não preenchidos corretamente!";
+            $this->redirect('/admin/produtos');
+            exit;
+        }
+    
+        // Conversão dos preços
         if (!empty($price_from)) {
             $price_from = $this->convertPrice($price_from);
         }
-
         if (!empty($price)) {
             $price = $this->convertPrice($price);
         }
-
-        $existeProduto = ProductHandler::existsnewProduct($name);
-
-        if ($existeProduto) {
-         
-            $_SESSION['flash'] = "Produto já cadastrados";
+    
+        // Verifica se o produto já existe
+        if (ProductHandler::existsnewProduct($name)) {
+            $_SESSION['flash'] = "Produto já cadastrado!";
             $this->redirect('/admin/produtos');
             exit;
         }
-        try{
-            
+    
+        try {
+            // Upload da imagem
+            $image_url = null;
             if (isset($_FILES['image_url']) && $_FILES['image_url']['error'] === UPLOAD_ERR_OK) {
-            
-                $uploadDir = __DIR__ . "/../../public/assets/images/products/";
-
-                if (!is_dir($uploadDir)) {
-                    mkdir($uploadDir, 0777, true);
+                $image_url = $this->handleImageUpload();
+                if (!$image_url) {
+                    $_SESSION['flash'] = "Erro ao cadastrar imagem!";
+                    $this->redirect('/admin/produtos');
+                    exit;
                 }
-                
-                $tmpName = $_FILES['image_url']['tmp_name'];
-                $originalName = basename($_FILES['image_url']['name']);
-            
-            
-                // Gerar hash MD5 baseado no nome original + timestamp
-                $hashName = $originalName . uniqid() . ".jpg";
-                $destinationPath = $uploadDir . $hashName;
-            
-            
-                // Comprime e move a imagem para o diretório final
-                if (ProductHandler::compressImage($tmpName, $destinationPath, 70)) {
-                    $image_url = "http://localhost/delivery_/assets/images/products/" . $hashName;
-                } else {
-                  
-            $_SESSION['flash'] = "Erro ao processar imagem";
-            $this->redirect('/admin/produtos');
-            exit;
-                }
-            } else {
-                var_dump("Arquivo não recebido ou erro no upload!", $_FILES['image_url']['error'] ?? 'Sem arquivo');
-                exit;
             }
-
+    
+            // Adiciona o produto no banco
             $produto = ProductHandler::addnewProduct($name, $description, $price, $price_from, $image_url, $is_listed, $category_id, $created_at, $updated_at);
-            
+    
             if ($produto) {
-               
-            $_SESSION['flash'] = "Produto cadastrado com sucesso!";
-            $this->redirect('/admin/produtos');
-            exit;
+                $_SESSION['flash'] = "Produto cadastrado com sucesso!";
             } else {
-                  
-            $_SESSION['flash'] = "Não foi possível cadastrar o produto!";
+                $_SESSION['flash'] = "Não foi possível cadastrar o produto!";
+            }
+    
             $this->redirect('/admin/produtos');
             exit;
-                }
-            }
-        catch(\Exception $e){
-           
-            $_SESSION['flash'] = "Erro ao cadastrar o produto". $e->getMessage();
+    
+        } catch (\Exception $e) {
+            $_SESSION['flash'] = "Erro ao cadastrar o produto: " . $e->getMessage();
             $this->redirect('/admin/produtos');
             exit;
         }
     }
+    
 
     public function getAllProduct($value = null){
         try { 
@@ -220,35 +197,6 @@ class ProductController extends Controller {
         }
     }
     
-    // Função auxiliar para conversão de preços
-    private function convertPrice($price) {
-        $formattedPrice = str_replace('.', '', $price);
-        $formattedPrice = str_replace(',', '.', $formattedPrice);
-        return (float)$formattedPrice;
-    }
-    
-    // Função auxiliar para tratamento de upload de imagem
-    private function handleImageUpload() {
-        $uploadDir = __DIR__ . "/../../public/assets/images/products/";
-    
-        if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0777, true);
-        }
-    
-        $tmpName = $_FILES['image_url']['tmp_name'];
-        $originalName = basename($_FILES['image_url']['name']);
-        $hashName = $originalName . uniqid() . ".jpg";
-        $destinationPath = $uploadDir . $hashName;
-    
-        // Comprime e move a imagem para o diretório final
-        if (ProductHandler::compressImage($tmpName, $destinationPath, 70)) {
-            return "http://localhost/delivery_/assets/images/products/" . $hashName;
-        } else {
-            return false;
-        }
-    }
-    
-    
     public function deleteProduct($id) {
         try {
             
@@ -273,5 +221,53 @@ class ProductController extends Controller {
             // Erro inesperado
             echo Response::json(['message' => 'Erro ao processar a solicitação: ' . $e->getMessage()], 500);
         }
+    }
+
+
+    // Função auxiliar para conversão de preços
+    private function convertPrice($price) {
+        $formattedPrice = str_replace('.', '', $price);
+        $formattedPrice = str_replace(',', '.', $formattedPrice);
+        return (float)$formattedPrice;
+    }
+    
+    private function handleImageUpload() {
+        $uploadDir = __DIR__ . "/../../public/assets/images/products/";
+    
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
+        }
+    
+        $tmpName = $_FILES['image_url']['tmp_name'];
+        $originalName = basename($_FILES['image_url']['name']);
+        $hashName = $originalName . uniqid() . ".jpg";
+        $destinationPath = $uploadDir . $hashName;
+    
+        // Comprime e move a imagem para o diretório final
+        if ($this->compressImage($tmpName, $destinationPath, 70)) {
+            return Config::IMAGE_DIR . "/assets/images/products/" . $hashName;
+        } else {
+            return false;
+        }
+    }
+        
+    public static function compressImage($source, $destination, $quality) {
+        $info = getimagesize($source);
+    
+        if ($info['mime'] == 'image/jpeg') {
+            $image = @imagecreatefromjpeg($source);
+        } elseif ($info['mime'] == 'image/png') {
+            $image = @imagecreatefrompng($source);
+            imagepalettetotruecolor($image);
+        } elseif ($info['mime'] == 'image/webp') {
+            $image = @imagecreatefromwebp($source);
+        } else {
+            return false;
+        }
+    
+        imagejpeg($image, $destination, $quality);
+        imagedestroy($image);
+    
+        return true;
     }
 }
