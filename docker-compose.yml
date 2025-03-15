@@ -3,7 +3,7 @@ services:
     image: mysql:5.7
     container_name: mysql
     ports:
-      - "3306:3306" # Porta para o MySQL
+      - "3306:3306" 
     environment:
       MYSQL_ROOT_PASSWORD: p3dr0
       MYSQL_DATABASE: delivery
@@ -14,10 +14,10 @@ services:
     image: phpmyadmin:latest
     container_name: phpmyadmin
     ports:
-      - "8081:80" # Porta para acessar o phpMyAdmin
+      - "8081:80" 
     environment:
       PMA_HOST: db
       MYSQL_ROOT_PASSWORD: p3dr0
 
 volumes:
-  deliveryrs_db_data:  # <-- Aqui estava errado, agora está indentado corretamente
+  deliveryrs_db_data:  
