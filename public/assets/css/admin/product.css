@@ -118,3 +118,129 @@ select,
     }
     
 }
+
+
+/* Estilização do Modal */
+.modalUpdate {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #1A1A1A;
+    width: 90%;
+    max-width: 500px;
+    max-height: 98vh; /* 🔥 Garante que o modal nunca ultrapasse a altura da tela */
+    overflow-y: auto; /* 🔥 Se for maior que a tela, adiciona scroll interno */
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    display: none;
+}
+
+/* Estilização do título */
+.modalUpdate h1 {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    text-align: center;
+    color: white;
+}
+
+/* Estilização do formulário */
+.modalUpdate .form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Inputs e Textarea */
+.modalUpdate .input, 
+.modalUpdate select, 
+.modalUpdate textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+    outline: none;
+    transition: border 0.3s;
+    background: #333;
+    color: white;
+    background-size: cover;
+}
+
+.modalUpdate .input:focus, 
+.modalUpdate select:focus, 
+.modalUpdate textarea:focus {
+    border-color: #007bff;
+}
+
+
+
+/* Estilização do Upload de Imagem */
+.modalUpdate .labelAvatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f4f4f4;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 2px dashed #ccc;
+    transition: border 0.3s;
+}
+
+.modalUpdate .labelAvatar:hover {
+    border-color: #007bff;
+}
+
+/* Esconder o input file */
+.modalUpdate .product {
+    display: none;
+}
+
+/* Pré-visualização da imagem */
+.modalUpdate .preview-photo {
+    margin-top: 10px;
+    width: 100%;
+    height: 100px;
+    background-size: fit;
+    background-position: center;
+    border-radius: 8px;
+}
+
+/* Ajuste para campos lado a lado */
+.modalUpdate .flex {
+    display: flex;
+    gap: 10px;
+}
+
+.modalUpdate .flex input {
+    flex: 1;
+}
+
+/* Checkbox */
+.modalUpdate label[for="visivel"] {
+    display: block;
+    font-size: 16px;
+    margin-top: 10px;
+    color: white;
+}
+
+/* Responsividade */
+@media (max-width: 500px) {
+    .modalUpdate {
+        width: 95%;
+        padding: 15px;
+    }
+
+    .modalUpdate h1 {
+        font-size: 20px;
+    }
+
+    .modalUpdate .buttonAdd {
+        font-size: 16px;
+        padding: 10px;
+    }
+}

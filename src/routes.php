@@ -22,6 +22,7 @@ $router->get('/logout', 'LoginController@LogoutAction');
 $router->post('/nova-categoria', 'CategoryController@newCategoryAction');
 $router->post('/atualizar-ordem', 'CategoryController@updateOrder');
 $router->post('/atualizar-categoria', 'CategoryController@updateCategory');
+$router->get('/categorias', 'CategoryController@getAllCategory');
 
 // Produtos
 $router->post('/novo_produto', 'ProductController@newProduct');
@@ -45,10 +46,11 @@ $router->middleware('AuthMiddleware', [
     '/logout', 
     '/nova-categoria', 
     '/atualizar-ordem', 
-    // '/atualizar-categoria',
+     '/atualizar-categoria',
     '/dados-empresa',
   '/novo_produto',
   '/produtos',
+  '/categorias',
   '/produto/{value}',
   '/atualizar_produto/{id}',
   '/deletar_produto/{id}',
@@ -56,6 +58,6 @@ $router->middleware('AuthMiddleware', [
 
 $router->middleware('LogMiddleware', ['/admin',]);
 $router->middleware('CorsMiddleware', [
-    '/dados-empresa', '/atualizar-categoria', '/novo-produto'
+    '/dados-empresa', '/atualizar-categoria', '/novo-produto', '/produto/{value}',  '/categorias'
 ]);
 

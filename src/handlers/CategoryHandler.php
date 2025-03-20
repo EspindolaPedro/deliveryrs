@@ -42,8 +42,8 @@ class CategoryHandler  {
     }
 
     public static function getAllCategories() {
-        
         return Categories::select()
+        
         ->orderBy('position', 'asc')
         ->execute();
          

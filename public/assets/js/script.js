@@ -1,11 +1,4 @@
 // document.addEventListener('DOMContentLoaded', () => {
-const api = axios.create({
-  baseURL: "http://localhost/deliveryrs/public/",
-  headers: {
-    //'Authorization': 'Bearer seu-token-aqui',
-    "Content-Type": "application/json",
-  },
-});
 
 
 

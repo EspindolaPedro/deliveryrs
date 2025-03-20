@@ -2,11 +2,11 @@
 namespace src\handlers;
 
 use core\Response;
+use src\models\Categories;
 use src\models\Products;
 
 class ProductHandler  {
 
-    //Adiciona o produto no DB
     
     public static function addnewProduct($name, $description, $price, $price_from, $image_url, $is_listed, $category_id, $created_at, $updated_at) {
        try{
@@ -38,12 +38,24 @@ class ProductHandler  {
     }
 
     public static function getAllProduct() {
-        $products = Products::select()->get();
-        
-
+        $products = Products::select([
+            "products.id",
+            "products.name",
+            "products.description",
+            "products.price",
+            "products.price_from",
+            "products.image_url",
+            "products.created_at",
+            "products.updated_at",
+            "products.is_listed",
+            "products.category_id",
+            "categories.name as category_name"  // Alias correto para a categoria
+        ])
+        ->join("categories", "categories.id", "=", "products.category_id") // Certifique-se de que o campo category_id existe
+        ->get();
         $productList = [];
-
-        foreach ($products as $product){
+        
+        foreach ($products as $product) {
             $productList[] = [
                 'id' => $product['id'],
                 'name' => $product['name'],
@@ -53,43 +65,37 @@ class ProductHandler  {
                 'image_url' => $product['image_url'],
                 'is_listed' => $product['is_listed'],
                 'category_id' => $product['category_id'],
+                'category_name' => $product['category_name'], // Nome da categoria
                 'created_at' => $product['created_at'],
                 'updated_at' => $product['updated_at'],
             ];
         }
+        
         return $productList;
-
+        
     }
 
     public static function getProduct($value){
-  
-        if(empty($value)){
-            return null;
-        }
+        $products = Products::select([
+            "products.id",
+            "products.name",
+            "products.description",
+            "products.price",
+            "products.price_from",
+            "products.image_url",
+            "products.created_at",
+            "products.updated_at",
+            "products.is_listed",
+            "products.category_id",
+            "categories.name as category_name"  
+        ])
+        ->join("categories", "categories.id", "=", "products.category_id")
+        ->where('products.id', $value)
+        ->get();
         
-        $query = Products::select();
-        if (ctype_digit($value)){
-            $query->where('id', (int)$value);
-        }else{
-            $query->where('name', $value);
-        }
-        $product = $query->one();
+      
         
-        if($product){
-            $productData = [
-                'id' => $product['id'],
-                'name' => $product['name'],
-                'description' => $product['description'],
-                'price' => $product['price'],
-                'price_from' => $product['price_from'],
-                'image_url' => $product['image_url'],
-                'is_listed' => $product['is_listed'],
-                'category_id' => $product['category_id'],
-                'created_at' => $product['created_at'],
-                'updated_at' => $product['updated_at'],
-            ];
-            return $productData ?: null;
-        }
+        return $products;
     }
 
     public static function updateProduct($id, $name, $price, $price_from, $image_url, $data) {
@@ -140,22 +146,18 @@ class ProductHandler  {
             return 'no_changes'; // Nenhuma alteração foi feita
         }
     
-        // Se houver nova imagem
         if ($image_url) {
             $updateData['image_url'] = $image_url;
         }
     
-        // Adiciona o updated_at
         $updateData['updated_at'] = date('Y-m-d H:i:s');
     
-        // Realiza a atualização no banco de dados
         $updated = Products::update($updateData)->where('id', $id)->execute();
     
         if ($updated === false || $updated === 0) {
-            return 'update_failed'; // Falha na atualização
+            return 'update_failed'; 
         }
     
-        // Retorna o produto atualizado
         $updatedProduct = Products::select()->where('id', $id)->one();
         return $updatedProduct;
     }
@@ -163,46 +165,24 @@ class ProductHandler  {
     
 
     public static function deleteProduct($id) {
-        // 1. Verificar se o produto existe
+        
         $product = Products::select()->where('id', $id)->one();
         
         if (!$product) {
-            return 'not_found';  // Produto não existe
+            return 'not_found';  
         }
     
-        // 2. Tentar excluir o produto
         $deleted = Products::delete()->where('id', $id)->execute();
         
         if ($deleted === false) {
-            return 'delete_failed'; // Falha na execução
+            return 'delete_failed'; 
         }
     
-        // 3. Confirmar se o produto foi excluído
         $productAfterDelete = Products::select()->where('id', $id)->one();
     
-        // 4. Se o produto não existe mais após a exclusão, a exclusão foi bem-sucedida
         if (!$productAfterDelete) {
             return 'success';
         }
     }
 
-    public static function compressImage($source, $destination, $quality) {
-        $info = getimagesize($source);
-    
-        if ($info['mime'] == 'image/jpeg') {
-            $image = imagecreatefromjpeg($source);
-        } elseif ($info['mime'] == 'image/png') {
-            $image = imagecreatefrompng($source);
-            imagepalettetotruecolor($image);
-        } elseif ($info['mime'] == 'image/webp') {
-            $image = imagecreatefromwebp($source);
-        } else {
-            return false;
-        }
-    
-        imagejpeg($image, $destination, $quality);
-        imagedestroy($image);
-    
-        return true;
-    }
 }

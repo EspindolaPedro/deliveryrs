@@ -1,10 +1,10 @@
+<?php
 namespace core;
 
 class Cache {
-    private static $cacheDir = __DIR__ . "/../cache/"; // Caminho absoluto para evitar problemas
-    private static $defaultExpiration = 900; // 15 minutos
+    private static $cacheDir = __DIR__ . "/../cache/"; 
+    private static $defaultExpiration = 900; 
 
-    // 🔹 Garante que a pasta cache existe antes de salvar
     private static function ensureCacheDir() {
         if (!is_dir(self::$cacheDir)) {
             mkdir(self::$cacheDir, 0777, true); // Cria a pasta se não existir

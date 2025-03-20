@@ -7,6 +7,7 @@ use core\Response;
 use Exception;
 use src\handlers\CategoryHandler;
 use src\models\Categories;
+use Throwable;
 
 class CategoryController extends Controller
 {   
@@ -39,6 +40,31 @@ class CategoryController extends Controller
         } catch (Exception $e) {
             $_SESSION['flash'] = "Erro ao criar categoria: " . $e->getMessage();
             $this->redirect('/admin/categoria');
+            exit;
+        }
+    }
+
+    public function getAllCategory() {
+        try {
+
+            $categories = CategoryHandler::getAllCategories();
+
+            $data = [];
+            foreach($categories as $category) {
+                $data[] = [
+                    'id' => $category['id'],
+                    'name' => $category['name'],
+                    'is_listed' => $category['is_listed'],
+                    'position' => $category['position'],
+                ];
+            }
+            echo Response::json($data);            
+            exit;
+
+            
+
+        } catch (Throwable $e) {
+            echo Response::json(['error' => 'Erro ao buscar categorias.'], 500);
             exit;
         }
     }

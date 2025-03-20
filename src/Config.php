@@ -3,6 +3,7 @@ namespace src;
 
 class Config {
     const BASE_DIR = '/deliveryrs/public';
+    const IMAGE_DIR = 'http://localhost/deliveryrs/public';
 
     const DB_DRIVER = 'mysql';
     const DB_HOST = '127.0.0.1'; 
