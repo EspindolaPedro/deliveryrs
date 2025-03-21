@@ -99,68 +99,68 @@ class ProductHandler  {
     }
 
     public static function updateProduct($id, $name, $price, $price_from, $image_url, $data) {
-        $product = Products::select()->where('id', $id)->one();
-    
-        if (!$product) {
-            return 'not_found'; 
-        }
-    
-        // Validação de nome
-        if (isset($data['name']) && trim($data['name']) === '') {
-            return 'name_required'; 
-        }
-    
-        // Validação de preço
-        if (isset($data['price']) && !is_numeric($data['price'])) {
-            return 'invalid_price'; 
-        }
-    
-        // Validação de price_from
-        if (isset($data['price_from']) && !is_numeric($data['price_from'])) {
-            return 'invalid_price_from'; 
-        }
-    
-        $updateData = array_diff_key($data, ['id' => '', 'created_at' => '']);
-    
-        if (empty($updateData)) {
-            return 'no_changes'; 
-        }
-    
-        // Verifica se o nome foi alterado
-        if ($name && $name !== $product['name']) {
-            $existingProduct = Products::select()->where('name', $name)->where('id', '!=', $id)->one();
-            if ($existingProduct) {
-                return 'name_in_use'; // Nome já está em uso
-            }
-        }
-    
-        // Verifica se o preço foi alterado, e se sim, remove o campo price da atualização se não houver alteração
-        if (isset($updateData['price']) && $updateData['price'] == $product['price']) {
-            unset($updateData['price']);
-        }
-    
-        // Verifica se há mudanças reais nos dados antes de adicionar o updated_at
-        $changes = array_diff_assoc($updateData, $product);
-    
-        if (empty($changes)) {
-            return 'no_changes'; // Nenhuma alteração foi feita
-        }
-    
-        if ($image_url) {
-            $updateData['image_url'] = $image_url;
-        }
-    
-        $updateData['updated_at'] = date('Y-m-d H:i:s');
-    
-        $updated = Products::update($updateData)->where('id', $id)->execute();
-    
-        if ($updated === false || $updated === 0) {
-            return 'update_failed'; 
-        }
-    
-        $updatedProduct = Products::select()->where('id', $id)->one();
-        return $updatedProduct;
+    $product = Products::select()->where('id', $id)->one();
+    if (!$product) return 'not_found';
+
+    // Validação: se nome veio, não pode ser vazio
+    if (isset($data['name']) && trim($data['name']) === '') {
+        return 'name_required';
     }
+
+    // Validação: nome em uso por outro produto
+    if (isset($data['name']) && $data['name'] !== $product['name']) {
+        $existing = Products::select()
+            ->where('name', $data['name'])
+            ->where('id', '!=', $id)
+            ->one();
+        if ($existing) return 'name_in_use';
+    }
+
+    // Validações de preço (somente se enviados)
+    if (isset($price) && !is_numeric($price)) return 'invalid_price';
+    if (isset($price_from) && !is_numeric($price_from)) return 'invalid_price_from';
+
+    // Monta dados para update somente se forem diferentes dos atuais
+    $updateData = [];
+
+    if ($name !== null && $name !== $product['name']) {
+        $updateData['name'] = $name;
+    }
+
+    if ($price !== null && (float)$price != (float)$product['price']) {
+        $updateData['price'] = $price;
+    }
+
+    if ($price_from !== null && (float)$price_from != (float)$product['price_from']) {
+        $updateData['price_from'] = $price_from;
+    }
+
+    if (isset($data['description']) && $data['description'] !== $product['description']) {
+        $updateData['description'] = $data['description'];
+    }
+
+    if (isset($data['is_listed']) && (int)$data['is_listed'] !== (int)$product['is_listed']) {
+        $updateData['is_listed'] = (int)$data['is_listed'];
+    }
+
+    if (isset($data['category_id']) && (int)$data['category_id'] !== (int)$product['category_id']) {
+        $updateData['category_id'] = (int)$data['category_id'];
+    }
+
+    if ($image_url && $image_url !== $product['image_url']) {
+        $updateData['image_url'] = $image_url;
+    }
+
+    if (empty($updateData)) return 'no_changes';
+
+    $updateData['updated_at'] = date('Y-m-d H:i:s');
+
+    $updated = Products::update($updateData)->where('id', $id)->execute();
+    if (!$updated) return 'update_failed';
+
+    return Products::select()->where('id', $id)->one();
+}
+
     
     
 
