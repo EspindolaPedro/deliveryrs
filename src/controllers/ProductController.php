@@ -122,7 +122,7 @@ class ProductController extends Controller {
     
     public function updateProduct($id) {
         try {
-            $data = json_decode(file_get_contents('php://input'), true);
+            $data = $_POST;
             $name = $data['name'] ?? null;
             $price = $data['price'] ?? null;
             $price_from = $data['price_from'] ?? null;

@@ -229,7 +229,7 @@ function modalEditP() {
           const produto = res.data[0];
 
           document.querySelector('.preview-photo').innerHTML = `
-          <img src="${produto.image_url}" alt="Imagem do Produto" width="250">
+          <img src="${produto.image_url}" width="250">
       `;
          document.getElementById("category_selected").value =
             produto.category_id;
