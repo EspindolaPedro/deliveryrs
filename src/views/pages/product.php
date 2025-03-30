@@ -49,13 +49,14 @@ $produtos = isset($_GET['produtos']) ? $_GET['produtos'] : '1';
                         type="text"
                         id="price"
                         placeholder="Valor R$"
-                        class="input"
+                        class="input priceFormated"
                         name="price" />
+                        
                     <input
                         type="text"
                         id="price_from"
                         placeholder="Valor R$ (valor para promoção)"
-                        class="input"
+                        class="input priceFormated2"
                         name="price_from" />
 
                 </div>

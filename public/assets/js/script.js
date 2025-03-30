@@ -65,8 +65,9 @@ function closeModal() {
       IMask(phoneMask, maskOp);
     }
 
-    const precoInput = document.getElementById('price');
-    const precoFromInput = document.getElementById('price_from');
+    const precoInput = document.querySelector('.priceFormated');   
+    const precoInput2 = document.querySelector('.priceFormated2');   
+
        IMask(precoInput, {
             mask: Number, 
             scale: 2,
@@ -75,12 +76,13 @@ function closeModal() {
             normalizeZeros: true, 
             radix: ',',
         });
-        IMask(precoFromInput, {
-          mask: Number, 
-          scale: 2,
-          thousandsSeparator: '.', 
-          padFractionalZeros: true, 
-          normalizeZeros: true, 
-          radix: ',',
-      });
+       IMask(precoInput2, {
+            mask: Number, 
+            scale: 2,
+            thousandsSeparator: '.', 
+            padFractionalZeros: true, 
+            normalizeZeros: true, 
+            radix: ',',
+        });
+     
   });

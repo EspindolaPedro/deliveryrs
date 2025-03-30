@@ -108,7 +108,10 @@ function setupEditButtons() {
 document.addEventListener("DOMContentLoaded", setupEditButtons);
 
 async function GetProducts() {
+  const loading = document.getElementById("loading");
+  loading.style.display = "block";
   try {
+    
     const res = await api.get("/produtos");
 
     const produtos = Array.isArray(res.data) ? res.data : res.data.produtos;
@@ -117,8 +120,12 @@ async function GetProducts() {
     renderProducts(produtos);
   } catch (error) {
     console.error("Erro ao buscar produtos:", error);
+  } finally {
+    const loading = document.getElementById("loading");
+    loading.style.display = "none";
   }
 }
+
 function renderProducts(produtos) {
   const ul = document.getElementById("product-list");
 
@@ -155,7 +162,8 @@ function renderProducts(produtos) {
     li.setAttribute("data-id", produto.id);
     li.style.padding = "8px";
     li.style.marginBottom = "12px";
-
+    
+    const priceFrom = parseFloat(produto.price_from); 
     li.innerHTML = `
             <div class="flex gap-4">
               <img 
@@ -167,10 +175,7 @@ function renderProducts(produtos) {
                 <span class="font-semibold text-base">Categoria:</span> ${
                   produto.category_name
                 } <br>
-                <span class="font-semibold text-base">R$</span> ${produto.price.toLocaleString(
-                  "pt-BR",
-                  { style: "currency", currency: "BRL" }
-                )} 
+                <span class="font-semibold text-base">R$</span> ${formatPrice(produto.price)} 
                 <span class="font-semibold text-base" style="margin-left: 10px;" >Listado?</span> ${
                   produto.is_listed == 1 ? "Sim" : "Não"
                 }
@@ -192,28 +197,25 @@ function renderProducts(produtos) {
   });
 }
 
-
 async function carregarCategorias() {
   try {
-      const response = await api.get('/categorias'); 
-      const categorias = response.data;
+    const response = await api.get("/categorias");
+    const categorias = response.data;
 
-      const select = document.getElementById('category_selected');
-      
-      select.innerHTML = '<option value="">Escolha uma categoria</option>';
-    
-      categorias.forEach(categoria => {
-          const option = document.createElement('option');
-          option.value = categoria.id;
-          option.textContent = categoria.name;
-          select.appendChild(option);
-      });
+    const select = document.getElementById("category_selected");
 
+    select.innerHTML = '<option value="">Escolha uma categoria</option>';
+
+    categorias.forEach((categoria) => {
+      const option = document.createElement("option");
+      option.value = categoria.id;
+      option.textContent = categoria.name;
+      select.appendChild(option);
+    });
   } catch (error) {
-      console.error('Erro ao carregar categorias:', error);
+    console.error("Erro ao carregar categorias:", error);
   }
 }
-
 
 function modalEditP() {
   const modal = document.querySelector(".modalUpdate");
@@ -224,24 +226,31 @@ function modalEditP() {
       if (e.target && e.target.closest("button.openUpdateModal")) {
         const li = e.target.closest("li");
         const productId = li.getAttribute("data-id");
+        const modalForm = document.getElementById("productEditForm");
+        modalForm.setAttribute("data-id", productId);
         try {
           const res = await api.get(`/produto/${productId}`);
           const produto = res.data[0];
 
-          document.querySelector('.preview-photo').innerHTML = `
-          <img src="${produto.image_url}" width="250">
-      `;
-         document.getElementById("category_selected").value =
+          document.getElementById("category_selected").value =
             produto.category_id;
           document.getElementById("updateNameProduct").value =
             produto.name ?? "";
-          document.getElementById("Updateprice").value = produto.price ?? null;
+
+   
+          document.getElementById("Updateprice").value =
+          formatPrice(produto.price) ?? null;
+
+            
+            
           document.getElementById("UpdatePricefrom").value =
-            produto.price_from ?? null;
+          formatPrice(produto.price_from) ?? null;
+
+
           document.getElementById("UpdateDescription").value =
             produto.description ?? "";
-            document.querySelector('input[name="UpdateIsListed"]').checked = produto.is_listed ? 1 : 0
-          
+          document.querySelector('input[name="UpdateIsListed"]').checked =
+            produto.is_listed ? 1 : 0;
         } catch (e) {}
         modal.style.display = "block";
       }
@@ -252,23 +261,41 @@ function modalEditP() {
     });
 }
 
-function updateProduct () {
-  document.getElementById('productEditForm').addEventListener('submit', (e) => {
+async function updateProduct() {
+  const modalForm = document.getElementById("productEditForm");
+  modalForm.addEventListener("submit", async (e) => {
     e.preventDefault();
+    const productId = modalForm.getAttribute("data-id");
+    if (!productId) return console.error("Product not found");
 
-    const productId = document.getElementById('product-list').querySelector('.openUpdateModal').closest('li').getAttribute('data-id');
+    const formData = new FormData(modalForm);
+    console.log("FormData contents:");
+    for (let [key, value] of formData.entries()) {
+      console.log(key, value);
+    }
+    try {
+      const res = await api.post(`/atualizar-produto/${productId}`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
-    const formData = new FormData(this)
-    formData.append("id", productId)
+      if (res.data.message) {
+        showToastify(res.data.message);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      showToastify(error.response?.data?.message || "Error updating product");
+    }
 
-
-  })
+   await GetProducts()
+  });
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   modalEditP();
   GetProducts();
-  carregarCategorias() 
+  carregarCategorias();
   updateProduct();
 
   let closeModalEdit = document.querySelector(".closeUpdateModal");
@@ -279,3 +306,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
+
+
+const formatPrice = (value) => {
+  const num = parseFloat(value || 0);
+  return num.toLocaleString("pt-BR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+};
+

@@ -126,4 +126,50 @@ class CategoryController extends Controller
               
     }
 
+    public function ListCategory() {
+
+        try {
+            
+            $list = CategoryHandler::ListCategoryHandler();
+    
+            $result = [];
+    
+            foreach($list as $row) {
+                $categoryId = $row['category_id'];
+
+                if (!isset($result[$categoryId])) {
+                    $result[$categoryId] = [
+                        'id' => $row['category_id'],
+                        'nome' => $row['category_name'],
+                        'is_listed' => $row['category_isListed'],
+                        'position' => $row['category_position'],
+                        'products' => []
+                    ];
+                }
+                if ($row['product_id']) {
+                    $result[$categoryId]['products'][] = [
+                        'id' => $row['product_id'],
+                        'name' => $row['product_name'],
+                        'description' => $row['product_description'],
+                        'is_listed' => $row['product_isListed'],
+                        'image_url' => $row['product_imageUrl'],
+                        'price' => $row['product_price'],
+                        'price_from' => $row['product_priceFrom'],
+                    ];
+                }
+            }
+            $result = array_filter($result, function($category) {
+                return !empty($category['products']); // ou $category['product_count'] 
+            });
+            $result = array_values($result);
+
+            echo Response::json($result, 200);
+            exit;
+        } catch (Exception $e) {
+            echo Response::json(["message" => "Erro" . $e->getMessage()]);
+        }
+
+
+    }
+
 } 

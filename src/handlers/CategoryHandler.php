@@ -78,5 +78,24 @@ class CategoryHandler  {
 
     }
 
+    public static function ListCategoryHandler() {
+        return Categories::select([
+            'categories.id as category_id',
+            'categories.position as category_position',
+            'categories.name as category_name',
+            'categories.is_listed as category_isListed',
+            'products.id as product_id',
+            'products.name as product_name',
+            'products.description as product_description',
+            'products.price as product_price',
+            'products.price_from as product_priceFrom',
+            'products.image_url as product_imageUrl',
+            'products.is_listed as product_isListed',
+        ])
+        ->leftJoin('products', 'products.category_id', '=', 'categories.id')
+        ->orderBy('categories.position')
+        ->orderBy('products.created_at')
+        ->get();
+    }
 
 }

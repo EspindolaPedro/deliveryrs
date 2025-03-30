@@ -23,13 +23,15 @@ $router->post('/nova-categoria', 'CategoryController@newCategoryAction');
 $router->post('/atualizar-ordem', 'CategoryController@updateOrder');
 $router->post('/atualizar-categoria', 'CategoryController@updateCategory');
 $router->get('/categorias', 'CategoryController@getAllCategory');
+$router->get('/categorias/lista', 'CategoryController@ListCategory');
 
 // Produtos
 $router->post('/novo_produto', 'ProductController@newProduct');
 $router->get('/produtos', 'ProductController@getAllProduct');
 $router->get('/produto/{value}', 'ProductController@getProduct');
-$router->put('/atualizar_produto/{id}', 'ProductController@updateProduct');
-$router->delete('/deletar_produto/{id}', 'ProductController@deleteProduct');
+$router->get('/atualizar-produto/{id}', 'ProductController@updateProduct');
+$router->post('/atualizar-produto/{id}', 'ProductController@updateProduct');
+$router->delete('/deletar-produto/{id}', 'ProductController@deleteProduct');
 
 
 // Empresa
@@ -52,12 +54,11 @@ $router->middleware('AuthMiddleware', [
   '/produtos',
   '/categorias',
   '/produto/{value}',
-  '/atualizar_produto/{id}',
   '/deletar_produto/{id}',
 ]);
 
 $router->middleware('LogMiddleware', ['/admin',]);
 $router->middleware('CorsMiddleware', [
-    '/dados-empresa', '/atualizar-categoria', '/novo-produto', '/produto/{value}',  '/categorias'
+    '/dados-empresa', '/atualizar-categoria', '/novo-produto', '/produto/{value}',  '/categorias', '/categorias/lista'
 ]);
 

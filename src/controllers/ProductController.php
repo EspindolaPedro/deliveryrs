@@ -1,30 +1,34 @@
 <?php
+
 namespace src\controllers;
 
 use \core\Controller;
 use core\Response;
+use Exception;
 use src\handlers\ProductHandler;
 use src\models\Products;
 use \src\Config;
 
-class ProductController extends Controller {
-    
-    public function newProduct() {
+class ProductController extends Controller
+{
+
+    public function newProduct()
+    {
         $name = $_POST['name'];
         $description = $_POST['description'] ?? '';
         $price = $_POST['price'] ?? null;
-        $price_from = $_POST['price_from'] ;
+        $price_from = $_POST['price_from'];
         $is_listed = isset($_POST['is_listed']) ? 1 : 0;
         $category_id = $_POST['category_id'];
         $created_at = date('Y-m-d H:i:s');
         $updated_at = date('Y-m-d H:i:s');
-    
+
         if (empty($name) || empty($price) || empty($category_id)) {
             $_SESSION['flash'] = "Dados não preenchidos corretamente!";
             $this->redirect('/admin/produtos');
             exit;
         }
-    
+
         // Validação de preço com regex
         $regex = '/^\d{1,3}(\.\d{3})*,\d{2}$/';
 
@@ -33,7 +37,7 @@ class ProductController extends Controller {
             $this->redirect('/admin/produtos');
             exit;
         }
-    
+
         // Conversão dos preços
         if (!empty($price_from)) {
             $price_from = $this->convertPrice($price_from);
@@ -41,14 +45,14 @@ class ProductController extends Controller {
         if (!empty($price)) {
             $price = $this->convertPrice($price);
         }
-    
+
         // Verifica se o produto já existe
         if (ProductHandler::existsnewProduct($name)) {
             $_SESSION['flash'] = "Produto já cadastrado!";
             $this->redirect('/admin/produtos');
             exit;
         }
-    
+
         try {
             // Upload da imagem
             $image_url = null;
@@ -61,220 +65,145 @@ class ProductController extends Controller {
                 }
             }
             // Adiciona o produto no banco 
-            $produto = ProductHandler::addnewProduct($name, $description, $price, $price_from ? $price_from : null , $image_url, $is_listed, $category_id, $created_at, $updated_at);
+            $produto = ProductHandler::addnewProduct($name, $description, $price, $price_from ? $price_from : null, $image_url, $is_listed, $category_id, $created_at, $updated_at);
 
             if ($produto) {
                 $_SESSION['flash'] = "Produto cadastrado com sucesso!";
             } else {
                 $_SESSION['flash'] = "Não foi possível cadastrar o produto!";
             }
-    
+
             $this->redirect('/admin/produtos');
             exit;
-    
         } catch (\Exception $e) {
             $_SESSION['flash'] = "Erro ao cadastrar o produto: " . $e->getMessage();
             $this->redirect('/admin/produtos');
             exit;
         }
     }
-    
 
-    public function getAllProduct(){
-        try { 
+
+    public function getAllProduct()
+    {
+        try {
             $products = ProductHandler::getAllProduct();
- 
-            if(empty($products)){
-              
+
+            if (empty($products)) {
+
                 echo Response::json([
-                    'message' => 'Produto não encontrado!' 
+                    'message' => 'Produto não encontrado!'
                 ], 500);
-            exit;
+                exit;
             }
 
-            echo Response::json($products);  
-
-            }catch(\Exception $e){
-                echo Response::json([
-                    'message' => 'Erro ao buscar produto!' . $e->getMessage()
-                ], 500);
-            }
+            echo Response::json($products);
+        } catch (\Exception $e) {
+            echo Response::json([
+                'message' => 'Erro ao buscar produto!' . $e->getMessage()
+            ], 500);
+        }
     }
 
-    public function getProduct($value){
-        try{ 
+    public function getProduct($value)
+    {
+        try {
             // Se buscar por "id" ou "nome" passa por aqui
             $product = ProductHandler::getProduct($value);
-                
-            if ($product){
+
+            if ($product) {
                 echo Response::json($product);
             } else {
                 echo Response::json([
                     'message' => 'Produto não encontrado!'
                 ],  404);
             }
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             echo Response::json([
-            'message' => 'Erro ao buscar produto!' . $e->getMessage()
+                'message' => 'Erro ao buscar produto!' . $e->getMessage()
             ], 500);
         }
     }
-    
-  public function updateProduct($id) {
-    try {
-        $data = json_decode(file_get_contents('php://input'), true);
-        $data = is_array($data) ? $data : [];
 
-        // Inicializa valores que precisam de tratamento especial
-        $name = $data['name'] ?? null;
-        $price = $data['price'] ?? null;
-        $price_from = $data['price_from'] ?? null;
-        $image_url = null;
+    public function updateProduct($id)
+    {
+        $name = $_POST['name'] ?? null;
+        $description = $_POST['description'] ?? '';
+        $price = $_POST['price'] ?? '';
+        $price_from = $_POST['price_from'] ?? '';
+        $is_listed = isset($_POST['is_listed']) ? 1 : 0;
+        $category_id = $_POST['category_id'] ?? '';
+        $updated_at = date('Y-m-d H:i:s');
 
-        // Validação de preço (se enviado)
-        $regex = '/^\d{1,3}(\.\d{3})*,\d{2}$/';
-        if (isset($data['price']) && !preg_match($regex, $data['price'])) {
-            echo Response::json(['message' => 'Preço inválido!'], 400);
-            return;
+        $product = ProductHandler::getProductById($id);
+        $dateToUpadte = [];
+
+        $regex = '/^\d{1,3}(\.\d{3})*(,\d{2})?$/';
+
+        if ((!preg_match($regex, $price) && !empty($price)) || (!preg_match($regex, $price_from) && !empty($price_from))) {
+            Response::json(["message" => "Dados não preenchidos corretamente!"]);
+            exit;
         }
 
-        if (isset($data['price_from']) && !preg_match($regex, $data['price_from'])) {
-            echo Response::json(['message' => 'Preço de referência inválido!'], 400);
-            return;
+        // Conversão dos preços
+        if (!empty($price_from)) {
+            $price_from = $this->convertPrice($price_from);
+        }
+        if (!empty($price)) {
+            $price = $this->convertPrice($price);
         }
 
-        // Conversão de preços
-        if (isset($data['price'])) {
-            $price = $this->convertPrice($data['price']);
+        if ($price !== $product['price']) {
+            $dateToUpadte['price'] = $price;
+        }
+        if ($price_from !== $product['price_from']) {
+            $dateToUpadte['price_from'] = $price_from;
+        }
+        if ($name !== $product['name']) {
+            $dateToUpadte['name'] = $name;
         }
 
-        if (isset($data['price_from'])) {
-            $price_from = $this->convertPrice($data['price_from']);
+        if ($description !== $product['description']) {
+            $dateToUpadte['description'] = $description;
         }
 
-        // Upload de imagem (se enviada via $_FILES)
-        if (isset($_FILES['image_url']) && $_FILES['image_url']['error'] === UPLOAD_ERR_OK) {
-            $image_url = $this->handleImageUpload();
-            if (!$image_url) {
-                echo Response::json(['message' => 'Erro ao processar imagem!'], 500);
-                return;
-            }
+        if ($is_listed !== $product['is_listed']) {
+            $dateToUpadte['is_listed'] = $is_listed;
         }
 
-        // Chama o handler para atualizar
-        $result = ProductHandler::updateProduct($id, $name, $price, $price_from, $image_url, $data);
-
-        // Tratamento das respostas
-        switch ($result) {
-            case 'not_found':
-                echo Response::json(['message' => 'Produto não encontrado!'], 404);
-                break;
-            case 'name_required':
-                echo Response::json(['message' => 'O campo Nome* é obrigatório!'], 400);
-                break;
-            case 'invalid_price':
-                echo Response::json(['message' => 'O campo Preço* deve ser numérico!'], 400);
-                break;
-            case 'invalid_price_from':
-                echo Response::json(['message' => 'O campo Preço de referência deve ser numérico!'], 400);
-                break;
-            case 'name_in_use':
-                echo Response::json(['message' => 'Nome já está em uso!'], 400);
-                break;
-            case 'no_changes':
-                echo Response::json(['message' => 'Nenhuma alteração foi feita!'], 400);
-                break;
-            case 'update_failed':
-                echo Response::json(['message' => 'Erro ao atualizar o produto!'], 500);
-                break;
-            default:
-                echo Response::json(['message' => 'Produto atualizado com sucesso!', 'product' => $result], 200);
-                break;
+        if ($category_id !== $product['category_id']) {
+            $dateToUpadte['category_id'] = $category_id;
         }
 
-    } catch (\Exception $e) {
-        echo Response::json(['message' => 'Erro ao processar a solicitação: ' . $e->getMessage()], 500);
-    }
-}
+        if (!empty($_FILES['image_url']['tmp_name'])) {
+            $nova_imagem = $this->handleImageUpload();
+            $dateToUpadte['image_url'] = $nova_imagem;
+        }
 
-    public function updateProduct($id) {
+        if (empty($dateToUpadte)) {
+            echo Response::json(['message' => 'Nenhum dado enviado.'], 200);
+            exit;
+        }
+
+        $dateToUpadte['updated_at'] = $updated_at;
+
         try {
-            $data = $_POST;
-            $name = $data['name'] ?? null;
-            $price = $data['price'] ?? null;
-            $price_from = $data['price_from'] ?? null;
-            $image_url = $data['image_url'] ?? null;
-    
-            // Regex para validação de preços
-            $regex = '/^\d{1,3}(\.\d{3})*,\d{2}$/';
-    
-            if ((!preg_match($regex, $price) && !empty($price)) || (!preg_match($regex, $price_from) && !empty($price_from))) {
-                echo Response::json(['message' => 'Preços inválidos!'], 400);
-                return;
+            $res = ProductHandler::updateProduct($id, $dateToUpadte);
+            if ($res) {
+                echo Response::json(['message' => 'Atualizado com sucesso', 'Dados atualizados: ' => $dateToUpadte], 201);
+                exit;
             }
-    
-            // Converte os preços para float
-            if (!empty($price_from)) {
-                $price_from = $this->convertPrice($price_from);
-            }
-    
-            if (!empty($price)) {
-                $price = $this->convertPrice($price);
-            }
-    
-            // Atualizar imagem, se fornecida
-            if (isset($_FILES['image_url']) && $_FILES['image_url']['error'] === UPLOAD_ERR_OK) {
-                $image_url = $this->handleImageUpload();
-                if (!$image_url) {
-                    echo Response::json(['message' => 'Erro ao processar imagem!'], 500);
-                    return;
-                }
-            }
-    
-            // Chama o handler para atualizar o produto
-            $result = ProductHandler::updateProduct($id, $name, $price, $price_from, $image_url, $data);
-    
-            // Respostas baseadas no resultado
-            switch ($result) {
-                case 'not_found':
-                    echo Response::json(['message' => 'Produto não encontrado!'], 404);
-                    return;
-                case 'name_required':
-                    echo Response::json(['message' => 'O campo Nome* é obrigatório!'], 400);
-                    return;
-                case 'invalid_price':
-                    echo Response::json(['message' => 'O campo Preço* é obrigatório e deve ser numérico!'], 400);
-                    return;
-                case 'name_in_use':
-                    echo Response::json(['message' => 'Nome já está em uso!'], 400);
-                    return;
-                case 'no_changes':
-                    echo Response::json(['message' => 'Nenhuma alteração foi feita!'], 400);
-                    return;
-                case 'image_upload_error':
-                    echo Response::json(['message' => 'Erro ao processar a imagem!'], 500);
-                    return;
-                case 'update_failed':
-                    echo Response::json(['message' => 'Erro ao atualizar o produto!'], 500);
-                    return;
-                case 'success':
-                    echo Response::json(['message' => 'Produto atualizado com sucesso!', 'product' => $result], 200);
-                    return;
-                default:
-                    echo Response::json(['message' => 'Erro desconhecido!'], 500);
-                    return;
-            }
-    
-        } catch (\Exception $e) {
-            echo Response::json(['message' => 'Erro ao processar a solicitação: ' . $e->getMessage()], 500);
+        } catch (Exception $e) {
+            echo Response::json(["message" => "Erro para atualizar" . $e->getMessage()], 401);
+            exit;
         }
     }
-    
-    public function deleteProduct($id) {
+
+    public function deleteProduct($id)
+    {
         try {
-            
+
             $result = ProductHandler::deleteProduct($id);
-    
+
             switch ($result) {
                 case 'not_found':
                     echo Response::json(['message' => 'Produto não encontrado!'], 404);
@@ -289,7 +218,6 @@ class ProductController extends Controller {
                     echo Response::json(['message' => 'Erro desconhecido!'], 500);
                     return;
             }
-    
         } catch (\Exception $e) {
             // Erro inesperado
             echo Response::json(['message' => 'Erro ao processar a solicitação: ' . $e->getMessage()], 500);
@@ -297,25 +225,26 @@ class ProductController extends Controller {
     }
 
 
-    // Função auxiliar para conversão de preços
-    private function convertPrice($price) {
+    private function convertPrice($price)
+    {
         $formattedPrice = str_replace('.', '', $price);
         $formattedPrice = str_replace(',', '.', $formattedPrice);
         return (float)$formattedPrice;
     }
-    
-    private function handleImageUpload() {
+
+    private function handleImageUpload()
+    {
         $uploadDir = __DIR__ . "/../../public/assets/images/products/";
-    
+
         if (!is_dir($uploadDir)) {
             mkdir($uploadDir, 0777, true);
         }
-    
+
         $tmpName = $_FILES['image_url']['tmp_name'];
         $originalName = basename($_FILES['image_url']['name']);
         $hashName = $originalName . uniqid() . ".jpg";
         $destinationPath = $uploadDir . $hashName;
-    
+
         // Comprime e move a imagem para o diretório final
         if ($this->compressImage($tmpName, $destinationPath, 70)) {
             return Config::IMAGE_DIR . "/assets/images/products/" . $hashName;
@@ -323,10 +252,11 @@ class ProductController extends Controller {
             return false;
         }
     }
-        
-    public static function compressImage($source, $destination, $quality) {
+
+    public static function compressImage($source, $destination, $quality)
+    {
         $info = getimagesize($source);
-    
+
         if ($info['mime'] == 'image/jpeg') {
             $image = @imagecreatefromjpeg($source);
         } elseif ($info['mime'] == 'image/png') {
@@ -337,10 +267,10 @@ class ProductController extends Controller {
         } else {
             return false;
         }
-    
+
         imagejpeg($image, $destination, $quality);
         imagedestroy($image);
-    
+
         return true;
     }
 }

@@ -9,5 +9,13 @@
 <script src="<?= $base?>/assets/js/sortable.js"></script>
 <script src="<?= $base?>/assets/js/req.js"></script>
 
+<div id="loading" class="loading-container" style="display: none;">
+  <div class="spinner">
+    <div class="dot1"></div>
+    <div class="dot2"></div>
+  </div>
+  <p>Carregando...</p>
+</div>
+
 </body>
 </html>
