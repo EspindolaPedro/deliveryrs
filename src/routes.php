@@ -12,6 +12,7 @@ $router->get('/admin', 'AdminController@index');
 $router->get('/admin/categoria', 'AdminController@category');
 $router->get('/admin/produtos', 'AdminController@product');
 $router->get('/admin/empresa', 'AdminController@company');
+$router->get('/admin/pedidos', 'AdminController@orders');
 
 
 //login
@@ -23,15 +24,20 @@ $router->post('/nova-categoria', 'CategoryController@newCategoryAction');
 $router->post('/atualizar-ordem', 'CategoryController@updateOrder');
 $router->post('/atualizar-categoria', 'CategoryController@updateCategory');
 $router->get('/categorias', 'CategoryController@getAllCategory');
+
 $router->get('/categorias/lista', 'CategoryController@ListCategory');
 
 // Produtos
 $router->post('/novo_produto', 'ProductController@newProduct');
 $router->get('/produtos', 'ProductController@getAllProduct');
-$router->get('/produto/{value}', 'ProductController@getProduct');
-$router->get('/atualizar-produto/{id}', 'ProductController@updateProduct');
 $router->post('/atualizar-produto/{id}', 'ProductController@updateProduct');
 $router->delete('/deletar-produto/{id}', 'ProductController@deleteProduct');
+
+$router->get('/produto/{value}', 'ProductController@getProduct');
+
+// orders
+$router->post('/criar-order', 'OrderController@OrderCreate');
+$router->get('/pedido', 'OrderController@listOrders');
 
 
 // Empresa

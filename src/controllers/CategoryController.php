@@ -6,7 +6,6 @@ use core\Controller;
 use core\Response;
 use Exception;
 use src\handlers\CategoryHandler;
-use src\models\Categories;
 use Throwable;
 
 class CategoryController extends Controller
@@ -172,4 +171,4 @@ class CategoryController extends Controller
 
     }
 
-} 
+}

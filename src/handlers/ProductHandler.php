@@ -92,9 +92,7 @@ class ProductHandler  {
         ->join("categories", "categories.id", "=", "products.category_id")
         ->where('products.id', $value)
         ->get();
-        
-      
-        
+                
         return $products;
     }
 

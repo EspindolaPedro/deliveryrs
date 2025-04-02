@@ -35,30 +35,38 @@ $categoria = isset($_GET['categorias']) ? $_GET['categorias'] : '1';
 
 
     <?php else: ?>
-
-
         <div class="cont">
+            <!-- Filtro de seleção -->
+            <select id="categoryFilter" class="mb-4 p-2 border rounded max-w-[200px]">
+                <option value="all">Todas</option>
+                <option value="listed">Listadas</option>
+                <option value="not-listed">Não Listadas</option>
+            </select>
+
             <ul id="sortable-list" class="sortable-list">
-
                 <?php foreach ($categories as $category): ?>
-                    <li onclick="" class="max-w-[600px] rounded-md bg-white text-[#252525] flex justify-between items-center cursor-grab"
-                        data-id="<?= $category['id'] ?>"><?= htmlspecialchars($category['name']) ?><span class="flex gap-4">
+                    <li class="category-item max-w-[600px] rounded-md bg-white  text-[#252525] flex justify-between items-center cursor-grab"
+                        data-id="<?= $category['id'] ?>" data-listed="<?= $category['is_listed'] ?>">
 
-                            <button  class="w-10"
-                            onclick="updateCategory(<?= $category['id'] ?>)" 
+                        <div class="flex flex-col ">
+                            <div class="category-name ">
+                                <span class="font-semibold">Categoria:</span> <span class="text-xl"><?= htmlspecialchars($category['name']) ?></span>
+                            </div>
+                            <div class="category-status ">
+                                <span class="font-semibold text-xl">Listado?</span> <?= $category['is_listed'] ? '<span class="text-green-700">Sim</span>' : '<span class="text-red-600">Não</span>' ?>
+                            </div>
+                        </div>
 
-                            class="cursor-pointer"
-                            data-is-listed="<?= $category['is_listed'] ?>"
-                            >
-                            <img src="<?= $base ?>/assets/images/edit.svg" 
-                            class="w-10" alt="editar"></button>
-
-                         <!--   <button onclick="removeCategory(category['id'])" class="cursor-pointer"><img src="<?= $base ?>/assets/images/trash.svg " class="w-8" alt="editar"></span></button> -->
-
-
+                        <span class="flex gap-4">
+                            <button class="w-10 cursor-pointer"
+                                onclick="openEditModal(<?= json_encode($category['id']) ?>,  '<?= addslashes($category['name']) ?>', <?= $category['is_listed'] ?>)">
+                                <img src="<?= $base ?>/assets/images/edit.svg" class="w-10" alt="editar">
+                            </button>
+                        </span>
                     </li>
                 <?php endforeach; ?>
             </ul>
+        </div>
         </div>
 
 
@@ -92,11 +100,11 @@ $categoria = isset($_GET['categorias']) ? $_GET['categorias'] : '1';
             <input class="text-bold text-xl border-b-2 border-gray-400 " style="padding: 4px;" type="text" id="editCategoryName" name="name" placeholder="Nome da Categoria" required>
             <br>
             <label for="editIsListed mb-2" class="text-xl">Aparecer no menu ?</label> <br>
-            <input type="checkbox" id="editIsListed" name="is_listed" value="1"> 
+            <input type="checkbox" id="editIsListed" name="is_listed" value="1">
             <br>
             <input type="hidden" id="editCategoryId" name="id"> <br>
             <div class="modal-buttons">
-                <button type="submit" class="confirm-button">Salvar</button>      
+                <button type="submit" class="confirm-button">Salvar</button>
                 <button type="button" id="cancelEdit" class="cancel-button">Cancelar</button>
             </div>
         </form>
@@ -105,7 +113,28 @@ $categoria = isset($_GET['categorias']) ? $_GET['categorias'] : '1';
 </div>
 
 
+<script>
+    // Função para filtrar as categorias
+    document.getElementById('categoryFilter').addEventListener('change', function() {
+        var filterValue = this.value;
+        var categories = document.querySelectorAll('.category-item');
 
+        categories.forEach(function(category) {
+            var isListed = category.getAttribute('data-listed');
+
+            // Verifica qual opção foi escolhida e exibe/oculta as categorias
+            if (filterValue === 'all') {
+                category.style.display = 'flex'; // Exibe todas
+            } else if (filterValue === 'listed' && isListed === '1') {
+                category.style.display = 'flex'; // Exibe apenas as listadas
+            } else if (filterValue === 'not-listed' && isListed === '0') {
+                category.style.display = 'flex'; // Exibe apenas as não listadas
+            } else {
+                category.style.display = 'none'; // Oculta as categorias que não atendem ao filtro
+            }
+        });
+    });
+</script>
 
 
 

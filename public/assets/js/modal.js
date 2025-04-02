@@ -15,37 +15,42 @@ function showToastify(message) {
     backgroundColor: "linear-gradient(to right, #000, #111)",
   }).showToast();
 }
-
 function openEditModal(categoryId, categoryName, isListed) {
   const editModal = document.getElementById("editModal");
   editModal.style.display = "flex";
 
+  // Preenche os campos do modal com as informações da categoria
   document.getElementById("editCategoryName").value = categoryName;
   document.getElementById("editIsListed").checked = isListed == 1;
   document.getElementById("editCategoryId").value = categoryId;
 
+  // Funcionalidade para fechar o modal ao clicar no botão "Cancelar"
   const cancelEditButton = document.getElementById("cancelEdit");
   cancelEditButton.onclick = function () {
     editModal.style.display = "none";
   };
+
+  // Funcionalidade para fechar o modal ao clicar no "X"
   const closeEditModal = document.getElementById("closeEditModal");
   closeEditModal.onclick = function () {
     editModal.style.display = "none";
   };
 
+  // Fecha o modal caso o usuário clique fora dele
   window.onclick = function (event) {
     if (event.target == editModal) {
       editModal.style.display = "none";
     }
   };
+
+  // Função para submeter o formulário de edição
   const editForm = document.getElementById("editCategoryForm");
   editForm.onsubmit = function (event) {
     event.preventDefault();
-    updateCategory(categoryId);
-    editModal.style.display = "none";
+    updateCategory(categoryId);  // Chama a função para atualizar a categoria
+    editModal.style.display = "none";  // Fecha o modal após a edição
   };
 }
-
 async function updateCategory(categoryId) {
   const categoryName = document.getElementById("editCategoryName").value;
   const isListed = document.getElementById("editIsListed").checked ? 1 : 0;
@@ -70,23 +75,24 @@ async function updateCategory(categoryId) {
       duration: 3000,
       gravity: "top",
       position: "center",
-      backgroundColor: "linear-gradient(to right, #000, #111)",
+      backgroundColor: "linear-gradient(to right, #000, #111)"
     }).showToast();
 
     setTimeout(() => {
-      location.reload();
+      location.reload(); // Recarrega a página após a atualização
     }, 20);
   } catch (error) {
     console.error("Erro na requisição:", error);
     Toastify({
-      text: "Categoria já existe!",
+      text: "Erro ao atualizar a categoria!",
       duration: 3000,
       gravity: "top",
       position: "center",
-      backgroundColor: "linear-gradient(to right, #000, #111)",
+      backgroundColor: "linear-gradient(to right, #000, #111)"
     }).showToast();
   }
 }
+
 
 function setupEditButtons() {
   const editButtons = document.querySelectorAll(
@@ -157,9 +163,11 @@ function renderProducts(produtos) {
       "text-[#252525]",
       "flex",
       "justify-between",
-      "items-center"
+      "items-center",
+      "product-item"
     );
     li.setAttribute("data-id", produto.id);
+    li.setAttribute("data-listed", produto.is_listed);
     li.style.padding = "8px";
     li.style.marginBottom = "12px";
     
@@ -171,13 +179,13 @@ function renderProducts(produtos) {
                 alt="${produto.name}"
                 style="max-width:100px; max-height:80px;object-fit:cover;">
               <div>
-                <p class="text-xl text-semibold">${produto.name}</p> 
-                <span class="font-semibold text-base">Categoria:</span> ${
+                <p class="text-2xl text-semibold product-name">${produto.name}</p> 
+                <span class="font-semibold text-base ">Categoria:</span> ${
                   produto.category_name
                 } <br>
-                <span class="font-semibold text-base">R$</span> ${formatPrice(produto.price)} 
+                <span class="font-semibold text-base product-price">R$</span> ${formatPrice(produto.price)} 
                 <span class="font-semibold text-base" style="margin-left: 10px;" >Listado?</span> ${
-                  produto.is_listed == 1 ? "Sim" : "Não"
+                  produto.is_listed == 1 ? "<span class='text-green-600'>Sim</span>" : "<span class='text-red-600'>Não</span>"
                 }
               </div>
             </div>
@@ -196,6 +204,24 @@ function renderProducts(produtos) {
     ul.appendChild(li);
   });
 }
+
+document.getElementById('searchInput').addEventListener('input', function() {
+  const searchValue = this.value.toLowerCase();
+  
+  const products = document.querySelectorAll('.product-item');
+  
+  products.forEach(function(product) {
+      const productName = product.querySelector('.product-name').textContent.toLowerCase();
+      const productPrice = product.querySelector('.product-price').textContent.toLowerCase();
+      
+      if (productName.includes(searchValue) || productPrice.includes(searchValue)) {
+        product.style.display = 'flex'; 
+      } else {
+        product.style.display = 'none';
+      }
+  });
+});
+
 
 async function carregarCategorias() {
   try {

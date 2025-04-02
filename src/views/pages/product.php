@@ -83,40 +83,16 @@ $produtos = isset($_GET['produtos']) ? $_GET['produtos'] : '1';
 
     <?php else: ?>
 
+        <select id="categoryFilter" class="mb-4 p-2 border rounded max-w-[200px]">
+                <option value="all">Todas</option>
+                <option value="listed">Listadas</option>
+                <option value="not-listed">Não Listadas</option>
+            </select>
+
+            <input type="text" id="searchInput" class="mb-4 h-10 p-10 mr-2 border rounded max-w-[200px]" placeholder="Pesquisar produto...">
+
         <div>
             <ul id="product-list" class="">
-
-<!--
-                <li class="max-w-[600px] rounded-md bg-white text-[#252525] flex justify-between items-center cursor-grab"
-                    data-id="" style="padding: 8px;">
-
-                    <div class="flex gap-4">
-
-                    <img 
-                    src="http://localhost/deliveryrs/public/assets/images/products/67d2f41f4b826.png" 
-                    style="max-width:100px; max-height:80px;" alt="">
-
-                    <div>
-
-                        <p class="text-xl text-semibold">Cerveja</p> 
-                        
-                            <span class="font-semibold text-base">Categoria:</span> Bebidas <br>
-                            <span class="font-semibold text-base">R$</span> 43,29 
-                            <span class="font-semibold text-base" style="margin-left: 10px;" >Listado?</span> Sim
-                            </div>
-                    </div >
-                    <span class="flex gap-4">
-
-                        <button class="cursor-pointer openUpdateModal">
-                            <img src="<?= $base ?>/assets/images/edit.svg" class="w-8" alt="editar">
-                        </button>
-
-                        <button class="cursor-pointer">
-                            <img src="<?= $base ?>/assets/images/trash.svg " class="w-8" alt="editar"></span>
-                        </button>
-
-                </li>
-    -->
 
             </ul>
         </div>
@@ -141,6 +117,26 @@ $produtos = isset($_GET['produtos']) ? $_GET['produtos'] : '1';
 <?php endif; ?>
 
 
+<script>
+    document.getElementById('categoryFilter').addEventListener('change', function() {
+        var filterValue = this.value;
+        var categories = document.querySelectorAll('.product-item');
 
+        categories.forEach(function(category) {
+            var isListed = category.getAttribute('data-listed');
+
+            // Verifica qual opção foi escolhida e exibe/oculta as categorias
+            if (filterValue === 'all') {
+                category.style.display = 'flex'; // Exibe todas
+            } else if (filterValue === 'listed' && isListed === '1') {
+                category.style.display = 'flex'; // Exibe apenas as listadas
+            } else if (filterValue === 'not-listed' && isListed === '0') {
+                category.style.display = 'flex'; // Exibe apenas as não listadas
+            } else {
+                category.style.display = 'none'; // Oculta as categorias que não atendem ao filtro
+            }
+        });
+    });
+</script>
 
 <?php $render('footerAdmin') ?>

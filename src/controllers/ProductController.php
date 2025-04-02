@@ -6,7 +6,6 @@ use \core\Controller;
 use core\Response;
 use Exception;
 use src\handlers\ProductHandler;
-use src\models\Products;
 use \src\Config;
 
 class ProductController extends Controller
@@ -111,7 +110,7 @@ class ProductController extends Controller
             $product = ProductHandler::getProduct($value);
 
             if ($product) {
-                echo Response::json($product);
+                echo Response::json($product, 200);
             } else {
                 echo Response::json([
                     'message' => 'Produto não encontrado!'
@@ -189,7 +188,7 @@ class ProductController extends Controller
         try {
             $res = ProductHandler::updateProduct($id, $dateToUpadte);
             if ($res) {
-                echo Response::json(['message' => 'Atualizado com sucesso', 'Dados atualizados: ' => $dateToUpadte], 201);
+                echo Response::json(['message' => 'Atualizado com sucesso', 'Dados atualizados: ' => json_encode($dateToUpadte)], 201);
                 exit;
             }
         } catch (Exception $e) {

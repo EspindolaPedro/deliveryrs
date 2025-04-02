@@ -1,6 +1,7 @@
 <?php
 namespace src\handlers;
 use \src\models\Adms;
+use \src\models\Users;
 
 class UserHandler  {
     public static function checkLogin($token) {
@@ -68,5 +69,34 @@ class UserHandler  {
         return false; 
     }
 
+    public static function findUserByPhone($phone) {
+        $isUser = Users::select()->where('phone', $phone)->first();
+        if ($isUser) {
+            return $isUser;
+        }
+        return false;
+    }
+
+    public static function createCommonUser(
+        $user_name,
+        $phone,
+        $street,
+        $number,
+        $neighborhood,
+        $complement
+    ) {
+        return Users::insert([
+            'name' => $user_name,
+            'phone' => $phone,
+            'street' => $street,
+            'number' => $number,
+            'neighborhood' => $neighborhood,
+            'complement' => $complement,
+            'created_at' => date('Y-m-d H:i:s'),
+        ])->execute();
     
+    }
+    
+
+
 }
