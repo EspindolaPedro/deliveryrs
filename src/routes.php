@@ -38,6 +38,8 @@ $router->get('/produto/{value}', 'ProductController@getProduct');
 // orders
 $router->post('/criar-order', 'OrderController@OrderCreate');
 $router->get('/pedido', 'OrderController@listOrders');
+$router->get('/pedido/{id}', 'OrderController@getOrderById');
+$router->put('/update-order', 'OrderController@updateOrderStatus');
 
 
 // Empresa
