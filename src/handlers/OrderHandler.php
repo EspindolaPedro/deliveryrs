@@ -138,4 +138,80 @@ class OrderHandler
          
     }
 
+    public static function getOrderById($id) {
+        return Orders::select([
+            "orders.id",
+            "orders.status as order_status",
+            "orders.observation as order_observation",
+            "orders.payment_method",
+            "orders.user_id",
+            "orders.created_at",
+            "orders.updated_at",
+            "orders.subtotal",
+            "products.id as product_id",
+            "products.name as product_name",
+            "products.price as product_price",
+            "items.id as item_id",
+            "items.amount",
+            "items.observation as item_observation",
+            "users.name as user_name",
+            "users.phone",
+            "users.street",
+            "users.number",
+            "users.neighborhood",
+            "users.complement",
+        ])
+        ->join("users", "users.id", "=", "orders.user_id")
+        ->join("items", "items.order_id", "=", "orders.id")
+        ->join("products", "products.id", "=", "items.product_id")
+        ->where("orders.id", $id)
+        ->get();
+    }
+
+    public static function updateOrderStatus($orderId, $newStatus) {
+        try {
+            $validStatuses = ['Pendente', 'Aceito', 'Em preparo', 'Entrega', 'Cancelados'];
+    
+            if (!in_array($newStatus, $validStatuses)) {
+                return ['status' => 'error', 'message' => 'Status inválido'];
+            }
+    
+            $order = Orders::select()->where('id', $orderId)->one();
+    
+            if (!$order) {
+                return ['status' => 'error', 'message' => 'Pedido não encontrado'];
+            }
+    
+            if ($order['status'] === $newStatus) {
+                return [
+                    'status' => 'error',
+                    'message' => 'O pedido já está atribuído ao status "' . $newStatus . '"'
+                ];
+            }
+    
+            Orders::update()
+                ->set('status', $newStatus)
+                ->set('updated_at', date('Y-m-d H:i:s'))
+                ->where('id', $orderId)
+                ->execute();
+
+            if ($newStatus === 'Cancelados'){
+                return [
+                    'status' => 'success',
+                    'message' => 'Pedido cancelado!'
+                ];
+            }
+    
+            return [
+                'status' => 'success',
+                'message' => "Status atualizado para '{$newStatus}' com sucesso!"
+            ];
+        } catch (\Exception $e) {
+            return [
+                'status' => 'error',
+                'message' => 'Erro ao atualizar o pedido: ' . $e->getMessage()
+            ];
+        }
+    }
+    
 }
