@@ -1,33 +1,20 @@
-## Instalação
-Você pode clonar este repositório OU baixar o .zip
+Delivery
 
-Ao descompactar, é necessário rodar o **composer** pra instalar as dependências e gerar o *autoload*.
+Deliveryrs é um sistema de delivery com back-end em PHP, voltado para a gestão de produtos, categorias, pedidos e dados da empresa. O projeto está em desenvolvimento e contará com um front-end em React.js para facilitar a experiência do usuário.
 
-Vá até a pasta do projeto, pelo *prompt/terminal* e execute:
-> composer install
+🚀 Funcionalidades
+Cadastro e gerenciamento de categorias e produtos
+Controle de pedidos com observações
+Cadastro das informações da empresa
+Acompanhamento do status dos pedidos
 
-Depois é só aguardar.
+🛠️ Tecnologias Utilizadas
+PHP
+HTML
+JAVASCRIPT
+AXIOS
+Composer
+Tailwind CSS
+Docker
 
-## Configuração
-Todos os arquivos de **configuração** e aplicação estão dentro da pasta *src*.
-
-As configurações de Banco de Dados e URL estão no arquivo *src/Config.php*
-
-É importante configurar corretamente a constante *BASE_DIR*:
-> const BASE_DIR = '/**PastaDoProjeto**/public';
-
-## Uso
-Você deve acessar a pasta *public* do projeto.
-
-O ideal é criar um ***alias*** específico no servidor que direcione diretamente para a pasta *public*.
-
-## Modelo de MODEL
-```php
-<?php
-namespace src\models;
-use \core\Model;
-
-class Usuario extends Model {
-
-}
-```
+React.js com Typescript e tailwindCss Para o site de pedidos (em desenvolvimento)
