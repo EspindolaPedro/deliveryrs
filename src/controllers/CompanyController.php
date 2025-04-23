@@ -1,8 +1,8 @@
 <?php
 
 namespace src\controllers;
-
 use core\Controller;
+use src\controllers\ProductController;
 use core\Response;
 use src\handlers\CompanyHandler;
 use Throwable;
@@ -15,9 +15,18 @@ class CompanyController extends Controller
         $address = $_POST['address'] ?? "";
         $phone = $_POST['phone'] ?? "";
         $about = $_POST['about'] ?? "";
-        $image = $_POST['image_url'] ?? "";
 
         try {
+            $currentData = CompanyHandler::getAllData(); 
+            $currentImage = $currentData['image_url'] ?? null;
+    
+            if (!empty($_FILES['image_url']['tmp_name'])) {
+                $productController = new ProductController();
+                $image = $productController->handleImageUpload(); 
+            } else {
+                $image = $currentImage; 
+            }
+          
             $data = CompanyHandler::updateData($name, $email, $address, $phone, $about, $image);
             if ($data) {
                 echo $_SESSION['flash'] = 'Dados cadastrados!';
@@ -55,6 +64,12 @@ class CompanyController extends Controller
 
         echo Response::json(["is_open" => $isOpen]);
 
+    }
+
+    public function getData() {
+        
+        $data = CompanyHandler::getAllData();
+        echo Response::json($data);
     }
 
 } 

@@ -15,7 +15,7 @@ $empresa = isset($_GET['empresa']) ? $_GET['empresa'] : '1';
 
     <?php if ($empresa == '1'): ?>
 
-        <form  class="form" method="POST" action="<?= $base?>/dados-empresa">
+        <form  class="form" method="POST" enctype="multipart/form-data" action="<?= $base?>/dados-empresa">
             <!-- Campo de Upload de Imagem -->
              <div>
                  <label class="CompanyAvatar" for="avatar">

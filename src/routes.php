@@ -46,7 +46,7 @@ $router->put('/update-order', 'OrderController@updateOrderStatus');
 $router->post('/dados-empresa', 'CompanyController@insertCompanyData');
 $router->post('/atualizar-horario', 'CompanyController@updateOpeningHours');
 $router->post('/verificar-horario', 'CompanyController@checkIfOpen');
-
+$router->get('/dados', 'CompanyController@getData');
 
 
 $router->middleware('AuthMiddleware', [
@@ -67,6 +67,12 @@ $router->middleware('AuthMiddleware', [
 
 $router->middleware('LogMiddleware', ['/admin',]);
 $router->middleware('CorsMiddleware', [
-    '/dados-empresa', '/atualizar-categoria', '/novo-produto', '/produto/{value}',  '/categorias', '/categorias/lista'
+    '/dados-empresa', 
+    '/atualizar-categoria', 
+    '/novo-produto', 
+    '/produto/{value}',  
+    '/categorias', 
+    '/categorias/lista',   
+    '/dados',
 ]);
 

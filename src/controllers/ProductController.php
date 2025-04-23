@@ -231,7 +231,7 @@ class ProductController extends Controller
         return (float)$formattedPrice;
     }
 
-    private function handleImageUpload()
+    public function handleImageUpload()
     {
         $uploadDir = __DIR__ . "/../../public/assets/images/products/";
 

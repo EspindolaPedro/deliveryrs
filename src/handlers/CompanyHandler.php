@@ -33,7 +33,9 @@ class CompanyHandler
 
         if (count($data) > 0) {
             $data = [
+                'id' => $data['id'],
                 'name' => $data['name'],
+                'about' => $data['about'],
                 'email' => $data['email'],
                 'address' => $data['address'],
                 'phone' => $data['phone'],
